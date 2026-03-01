@@ -18240,4 +18240,122 @@
       }
     ]
   }
+  },
+  "55555555": {
+    "name": "Plunderer",
+    "tags": ["plunderer", "plunderer_anime"],
+    "characters": [
+      {
+        "id": "300001",
+        "name": "Hina",
+        "gender": "Mujer",
+        "tags": ["hina_(plunderer)"],
+        "value": 100
+      },
+      {
+        "id": "300002",
+        "name": "Licht Bach",
+        "gender": "Hombre",
+        "tags": ["licht_bach"],
+        "value": 100
+      },
+      {
+        "id": "300003",
+        "name": "Nana",
+        "gender": "Mujer",
+        "tags": ["nana_(plunderer)"],
+        "value": 100
+      },
+      {
+        "id": "300004",
+        "name": "Jail Murdoch",
+        "gender": "Hombre",
+        "tags": ["jail_murdoch"],
+        "value": 100
+      },
+      {
+        "id": "300005",
+        "name": "Pele Poporo",
+        "gender": "Mujer",
+        "tags": ["pele_poporo"],
+        "value": 100
+      },
+      {
+        "id": "300006",
+        "name": "Lyne Mei",
+        "gender": "Mujer",
+        "tags": ["lyne_mei"],
+        "value": 100
+      },
+      {
+        "id": "300007",
+        "name": "Taketora Douan",
+        "gender": "Hombre",
+        "tags": ["taketora_douan"],
+        "value": 100
+      },
+      {
+        "id": "300008",
+        "name": "Schmerman Bach",
+        "gender": "Hombre",
+        "tags": ["schmerman_bach"],
+        "value": 100
+      },
+      {
+        "id": "300009",
+        "name": "Mizuka Sonohara",
+        "gender": "Mujer",
+        "tags": ["mizuka_sonohara"],
+        "value": 100
+      },
+      {
+        "id": "300010",
+        "name": "Alex",
+        "gender": "Mujer",
+        "tags": ["alex_(plunderer)"],
+        "value": 100
+      },
+      {
+        "id": "300011",
+        "name": "Federica",
+        "gender": "Mujer",
+        "tags": ["federica_(plunderer)"],
+        "value": 100
+      },
+      {
+        "id": "300012",
+        "name": "Sakaguchi",
+        "gender": "Hombre",
+        "tags": ["sakaguchi_(plunderer)"],
+        "value": 100
+      },
+      {
+        "id": "300013",
+        "name": "Okina",
+        "gender": "Mujer",
+        "tags": ["okina_(plunderer)"],
+        "value": 100
+      },
+      {
+        "id": "300014",
+        "name": "Genji",
+        "gender": "Hombre",
+        "tags": ["genji_(plunderer)"],
+        "value": 100
+      },
+      {
+        "id": "300015",
+        "name": "Saki Ichinose",
+        "gender": "Mujer",
+        "tags": ["saki_ichinose"],
+        "value": 100
+      },
+      {
+        "id": "300016",
+        "name": "Tsukina",
+        "gender": "Mujer",
+        "tags": ["tsukina_(plunderer)"],
+        "value": 100
+      }
+    ]
   }
