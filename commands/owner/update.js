@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename)
 
 async function reloadCommands(dir = path.join(__dirname, '..')) {
   const commandsMap = new Map()
+
   async function readCommands(folder) {
     const files = fs.readdirSync(folder)
     for (const file of files) {
@@ -16,7 +17,7 @@ async function reloadCommands(dir = path.join(__dirname, '..')) {
         await readCommands(fullPath)
       } else if (file.endsWith('.js')) {
         try {
-          const { default: cmd } = await import(fullPath + '?update=' + Date.now()) // fuerza recarga
+          const { default: cmd } = await import(fullPath + '?update=' + Date.now())
           if (cmd?.command) {
             cmd.command.forEach((c) => {
               commandsMap.set(c.toLowerCase(), cmd)
@@ -28,6 +29,7 @@ async function reloadCommands(dir = path.join(__dirname, '..')) {
       }
     }
   }
+
   await readCommands(dir)
   global.comandos = commandsMap
 }
@@ -36,15 +38,21 @@ export default {
   command: ['fix', 'update'],
   isOwner: true,
   run: async (client, m) => {
-    exec('git pull', async (error, stdout, stderr) => {
+    const jid = m.key.remoteJid
+
+    exec('git pull', { cwd: path.join(__dirname, '../..') }, async (error, stdout, stderr) => {
       await reloadCommands(path.join(__dirname, '..'))
+
       let msg = ''
-      if (stdout.includes('Already up to date.')) {
+      if (error) {
+        msg = `ꕥ *Estado:* Error en git pull\n\n${stderr || error.message}`
+      } else if (stdout.includes('Already up to date.')) {
         msg = 'ꕥ *Estado:* Todo está actualizado'
       } else {
         msg = `*Actualización completada*\n\n${stdout}`
       }
-      await client.sendMessage(m.key.remoteJid, { text: msg }, { quoted: m })
+
+      await client.sendMessage(jid, { text: msg }, { quoted: m })
     })
   }
 }
