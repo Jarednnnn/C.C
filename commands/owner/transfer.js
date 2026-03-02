@@ -11,12 +11,32 @@ const normalizeNumber = (num) => {
     return cleaned;
 };
 
+// Función para reemplazar todas las ocurrencias de un ID por otro en todo el objeto (copiando)
+function deepReplaceId(obj, oldId, newId) {
+    if (typeof obj === 'string') {
+        // Si es un string que coincide exactamente con el ID, lo reemplazamos
+        return obj === oldId ? newId : obj;
+    }
+    if (Array.isArray(obj)) {
+        return obj.map(item => deepReplaceId(item, oldId, newId));
+    }
+    if (obj && typeof obj === 'object') {
+        const newObj = {};
+        for (const [key, value] of Object.entries(obj)) {
+            // Reemplazar también en las claves si son IDs
+            const newKey = deepReplaceId(key, oldId, newId);
+            newObj[newKey] = deepReplaceId(value, oldId, newId);
+        }
+        return newObj;
+    }
+    return obj;
+}
+
 export default {
     command: ['transfer', 'trf'],
-    isOwner: true, // Esto ya usa global.owner automáticamente
+    isOwner: true,
     run: async (client, m, args, usedPrefix, command) => {
         try {
-            // Verificar argumentos
             if (args.length < 2) {
                 return client.reply(m.chat, formatMessage('Uso: #transfer <numero_origen> <numero_destino>\nEjemplo: #transfer 593981305645 593994524688'), m);
             }
@@ -30,10 +50,9 @@ export default {
 
             await m.react('🕒');
 
-            // Cargar base de datos
             global.loadDatabase();
 
-            // Verificar que el origen exista en users global
+            // Verificar que el origen exista en users global (aunque podría no tener, pero para evitar errores)
             if (!global.db.data.users[origen]) {
                 await m.react('✖️');
                 return client.reply(m.chat, formatMessage(`El usuario ${origen} no existe en la base de datos.`), m);
@@ -56,7 +75,7 @@ export default {
                 };
             }
 
-            // --- Transferir datos globales de users (copia profunda) ---
+            // 1. Transferir datos globales de users (copia profunda)
             const origenUser = JSON.parse(JSON.stringify(global.db.data.users[origen]));
             global.db.data.users[destino] = origenUser;
             // Resetear origen
@@ -74,14 +93,12 @@ export default {
                 metadatos2: null
             };
 
-            // --- Transferir datos de todos los chats ---
+            // 2. Transferir datos de chats (copia profunda)
             for (const chatId in global.db.data.chats) {
                 const chat = global.db.data.chats[chatId];
                 if (!chat.users || typeof chat.users !== 'object') continue;
 
-                // Si el origen tiene datos en este chat
                 if (chat.users[origen]) {
-                    // Asegurar que el destino tenga un objeto en este chat
                     if (!chat.users[destino]) {
                         chat.users[destino] = {
                             stats: {},
@@ -91,14 +108,10 @@ export default {
                             bank: 0,
                             afk: -1,
                             afkReason: "",
-                            characters: []  // Harem
+                            characters: []
                         };
                     }
-
-                    // Transferir: copia profunda de los datos del origen al destino
                     chat.users[destino] = JSON.parse(JSON.stringify(chat.users[origen]));
-
-                    // Resetear origen en este chat
                     chat.users[origen] = {
                         stats: {},
                         usedTime: null,
@@ -112,6 +125,10 @@ export default {
                 }
             }
 
+            // 3. AHORA: Reemplazar TODAS las ocurrencias del ID origen por el ID destino en TODA la base de datos
+            // Esto incluye personajes en global.db.data.characters, referencias en 'marry', etc.
+            global.db.data = deepReplaceId(global.db.data, origen, destino);
+
             // Guardar cambios
             global.saveDatabase();
 
@@ -123,4 +140,4 @@ export default {
             client.reply(m.chat, `⚠︎ Se ha producido un problema.\n${error.message}`, m);
         }
     }
-}
+};
