@@ -26,12 +26,12 @@ export default {
             if (!who2) {
                 return client.reply(m.chat, formatMessage('❀ Por favor, menciona al usuario o cita un mensaje.'), m);
             }
-            const who = await resolveLidToRealJid(who2, client, m.chat);
+            const userId = await resolveLidToRealJid(who2, client, m.chat);
 
-            // El primer argumento debe ser el ID del personaje (ej. 173827)
+            // El primer argumento debe ser el ID del personaje (ej. 100001)
             const characterId = args.find(arg => !arg.startsWith('@') && !arg.includes('@'));
             if (!characterId) {
-                return client.reply(m.chat, formatMessage('ꕥ Ingresa el ID del personaje.\nEjemplo: #givechar 173827 @usuario'), m);
+                return client.reply(m.chat, formatMessage('ꕥ Ingresa el ID del personaje.\nEjemplo: #givechar 100001 @usuario'), m);
             }
 
             await m.react('🕒');
@@ -45,7 +45,6 @@ export default {
                 return client.reply(m.chat, formatMessage('❀ Error al cargar el catálogo de personajes.'), m);
             }
 
-            // Aplanar para buscar por ID
             const allCharacters = flattenCharacters(catalog);
             const character = allCharacters.find(ch => ch.id == characterId); // comparación flexible
 
@@ -54,37 +53,38 @@ export default {
                 return client.reply(m.chat, formatMessage(`❀ No se encontró ningún personaje con ID *${characterId}*.`), m);
             }
 
-            // ========== GUARDAR EN EL CHAT ACTUAL ==========
-            if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = { users: {} };
-            if (!global.db.data.chats[m.chat].users) global.db.data.chats[m.chat].users = {};
-            if (!global.db.data.chats[m.chat].users[who]) {
-                global.db.data.chats[m.chat].users[who] = {
-                    stats: {},
-                    usedTime: null,
-                    lastCmd: 0,
-                    coins: 0,
-                    bank: 0,
-                    afk: -1,
-                    afkReason: "",
-                    characters: []
+            // ========== GUARDAR EN chat.characters (sistema actual de harem) ==========
+            if (!global.db.data.chats[m.chat]) global.db.data.chats[m.chat] = { users: {}, characters: {} };
+            if (!global.db.data.chats[m.chat].characters) global.db.data.chats[m.chat].characters = {};
+
+            const chatChars = global.db.data.chats[m.chat].characters;
+
+            // Verificar si el personaje ya está asignado a alguien en este chat
+            if (chatChars[characterId]) {
+                // Si ya existe, comprobamos a quién pertenece
+                const currentOwner = chatChars[characterId].user;
+                if (currentOwner === userId) {
+                    await m.react('✖️');
+                    return client.reply(m.chat, formatMessage(`❀ El usuario ya tiene el personaje *${character.name}* (ID: ${characterId}).`), m);
+                } else {
+                    // Si pertenece a otro, lo reasignamos (opcional, podrías denegar)
+                    // Por ahora, lo reasignamos
+                    chatChars[characterId].user = userId;
+                }
+            } else {
+                // Crear nueva entrada
+                chatChars[characterId] = {
+                    user: userId,
+                    name: character.name,
+                    value: character.value || 100,
+                    // Puedes añadir más campos si son necesarios
                 };
             }
-            if (!global.db.data.chats[m.chat].users[who].characters) {
-                global.db.data.chats[m.chat].users[who].characters = [];
-            }
 
-            // Evitar duplicados
-            if (global.db.data.chats[m.chat].users[who].characters.includes(characterId)) {
-                await m.react('✖️');
-                return client.reply(m.chat, formatMessage(`❀ El usuario ya tiene el personaje *${character.name}* (ID: ${characterId}).`), m);
-            }
-
-            // Añadir el ID al array del chat
-            global.db.data.chats[m.chat].users[who].characters.push(characterId);
-
-            // ========== TAMBIÉN GUARDAR EN users GLOBAL (por compatibilidad) ==========
-            if (!global.db.data.users[who]) {
-                global.db.data.users[who] = {
+            // También podrías guardar en users[userId].characters como respaldo, pero no es necesario para #harem
+            // Sin embargo, lo hacemos por compatibilidad futura
+            if (!global.db.data.users[userId]) {
+                global.db.data.users[userId] = {
                     name: null,
                     exp: 0,
                     level: 0,
@@ -99,18 +99,18 @@ export default {
                     characters: []
                 };
             }
-            if (!global.db.data.users[who].characters) {
-                global.db.data.users[who].characters = [];
+            if (!global.db.data.users[userId].characters) {
+                global.db.data.users[userId].characters = [];
             }
-            if (!global.db.data.users[who].characters.includes(characterId)) {
-                global.db.data.users[who].characters.push(characterId);
+            if (!global.db.data.users[userId].characters.includes(characterId)) {
+                global.db.data.users[userId].characters.push(characterId);
             }
 
             // Guardar cambios
             global.saveDatabase();
 
             await m.react('✔️');
-            client.reply(m.chat, formatMessage(`❀ Personaje *${character.name}* (ID: ${characterId}) añadido a @${who.split('@')[0]}.`), m, { mentions: [who] });
+            client.reply(m.chat, formatMessage(`❀ Personaje *${character.name}* (ID: ${characterId}) añadido a @${userId.split('@')[0]}.`), m, { mentions: [userId] });
 
         } catch (error) {
             console.error(error);
