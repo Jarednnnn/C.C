@@ -20,19 +20,44 @@ export default {
     isOwner: true,
     run: async (client, m, args, usedPrefix, command) => {
         try {
-            // Obtener usuario destino (mención o cita)
+            // --- Obtener usuario destino (prioridad: mención > cita > número en args) ---
+            let targetId;
             const mentioned = m.mentionedJid;
-            const who2 = mentioned.length > 0 ? mentioned[0] : (m.quoted ? m.quoted.sender : null);
-            if (!who2) {
-                return client.reply(m.chat, formatMessage('❀ Por favor, menciona al usuario o cita un mensaje.'), m);
+            
+            // Si hay mención, usamos la primera
+            if (mentioned.length > 0) {
+                targetId = await resolveLidToRealJid(mentioned[0], client, m.chat);
             }
-            const targetId = await resolveLidToRealJid(who2, client, m.chat);
+            // Si no hay mención pero hay mensaje citado
+            else if (m.quoted) {
+                targetId = await resolveLidToRealJid(m.quoted.sender, client, m.chat);
+            }
+            // Si no hay mención ni cita, intentamos tomar el último argumento como número
+            else if (args.length > 0) {
+                // El último argumento podría ser un número
+                const possibleNumber = args[args.length - 1];
+                // Si parece un número (solo dígitos, quizás con +)
+                if (/^\+?\d+$/.test(possibleNumber)) {
+                    targetId = normalizeNumber(possibleNumber);
+                    // Quitamos ese último argumento de args para que no interfiera con el identificador
+                    args.pop();
+                } else {
+                    return client.reply(m.chat, formatMessage('❀ Debes mencionar al usuario, citar un mensaje o proporcionar un número.'), m);
+                }
+            } else {
+                return client.reply(m.chat, formatMessage('❀ Debes mencionar al usuario, citar un mensaje o proporcionar un número.'), m);
+            }
 
+            if (!targetId) {
+                return client.reply(m.chat, formatMessage('❀ No se pudo determinar el usuario destino.'), m);
+            }
+
+            // --- Obtener identificador del personaje (todo lo que sobra en args) ---
             if (args.length < 1) {
                 return client.reply(m.chat, formatMessage('ꕥ Ingresa el ID o nombre del personaje.\nEjemplo: #dar 100001 @usuario  o  #dar Lelouch @usuario'), m);
             }
 
-            const identifier = args.join(' ').trim();
+            const identifier = args.join(' ').trim(); // Ya quitamos el último si era número
 
             await m.react('🕒');
 
@@ -47,7 +72,7 @@ export default {
 
             const allCharacters = flattenCharacters(catalog);
 
-            // Buscar personaje
+            // Buscar personaje por ID o nombre
             let character;
             if (/^\d+$/.test(identifier)) {
                 character = allCharacters.find(c => String(c.id) === identifier);
@@ -69,7 +94,7 @@ export default {
             if (!global.db.data.chats[m.chat].users) global.db.data.chats[m.chat].users = {};
             if (!global.db.data.chats[m.chat].characters) global.db.data.chats[m.chat].characters = {};
 
-            // Asegurar que el chat tenga una entrada para el personaje (si no existe, la crea)
+            // Asegurar entrada del personaje en el chat
             if (!global.db.data.chats[m.chat].characters[charId]) {
                 global.db.data.chats[m.chat].characters[charId] = {
                     name: charName,
@@ -79,7 +104,7 @@ export default {
                 };
             }
 
-            // Asegurar que el usuario destino tenga su objeto en el chat
+            // Asegurar que el usuario destino tenga objeto en el chat
             if (!global.db.data.chats[m.chat].users[targetId]) {
                 global.db.data.chats[m.chat].users[targetId] = {
                     stats: {},
@@ -96,36 +121,33 @@ export default {
                 global.db.data.chats[m.chat].users[targetId].characters = [];
             }
 
-            // Verificar si el destino ya lo tiene
-            if (global.db.data.chats[m.chat].users[targetId].characters.includes(charId)) {
-                await m.react('✖️');
-                return client.reply(m.chat, formatMessage(`❀ El usuario ya tiene el personaje *${charName}* (ID: ${charId}).`), m);
-            }
+            // --- Verificar si el personaje ya tiene dueño ---
+            const currentOwnerId = global.db.data.chats[m.chat].characters[charId].user;
+            let oldOwnerName = null;
 
-            // Verificar si el personaje ya está asignado a alguien
-            const currentOwner = global.db.data.chats[m.chat].characters[charId].user;
-            if (currentOwner) {
-                // Remover el personaje del antiguo dueño
-                if (global.db.data.chats[m.chat].users[currentOwner]) {
-                    global.db.data.chats[m.chat].users[currentOwner].characters = 
-                        global.db.data.chats[m.chat].users[currentOwner].characters.filter(id => id !== charId);
+            if (currentOwnerId) {
+                // Guardar nombre del antiguo dueño para el mensaje
+                oldOwnerName = global.db.data.users[currentOwnerId]?.name || currentOwnerId.split('@')[0];
+                
+                // Quitar el personaje del array del antiguo dueño
+                if (global.db.data.chats[m.chat].users[currentOwnerId]?.characters) {
+                    global.db.data.chats[m.chat].users[currentOwnerId].characters = 
+                        global.db.data.chats[m.chat].users[currentOwnerId].characters.filter(id => id !== charId);
                 }
-                // También remover de global.db.data.users si existe
-                if (global.db.data.users[currentOwner] && Array.isArray(global.db.data.users[currentOwner].characters)) {
-                    global.db.data.users[currentOwner].characters = 
-                        global.db.data.users[currentOwner].characters.filter(id => id !== charId);
+                
+                // Si el antiguo dueño lo tenía como favorito, eliminar favorito
+                if (global.db.data.chats[m.chat].users[currentOwnerId]?.favorite === charId) {
+                    delete global.db.data.chats[m.chat].users[currentOwnerId].favorite;
                 }
-                // Si el antiguo dueño tenía este personaje como favorito, quitar favorito
-                if (global.db.data.chats[m.chat].users[currentOwner]?.favorite === charId) {
-                    delete global.db.data.chats[m.chat].users[currentOwner].favorite;
-                }
-                if (global.db.data.users[currentOwner]?.favorite === charId) {
-                    delete global.db.data.users[currentOwner].favorite;
+                if (global.db.data.users[currentOwnerId]?.favorite === charId) {
+                    delete global.db.data.users[currentOwnerId].favorite;
                 }
             }
 
-            // Añadir el ID al array del usuario destino
-            global.db.data.chats[m.chat].users[targetId].characters.push(charId);
+            // --- Añadir el personaje al nuevo dueño ---
+            if (!global.db.data.chats[m.chat].users[targetId].characters.includes(charId)) {
+                global.db.data.chats[m.chat].users[targetId].characters.push(charId);
+            }
 
             // Actualizar la propiedad en chat.characters
             global.db.data.chats[m.chat].characters[charId].user = targetId;
@@ -159,13 +181,16 @@ export default {
             global.saveDatabase();
 
             await m.react('✔️');
-
-            // Mensaje con información de transferencia
-            let replyMsg = `❀ Personaje *${charName}* (ID: ${charId}) ha sido dado a @${targetId.split('@')[0]}.`;
-            if (currentOwner && currentOwner !== targetId) {
-                replyMsg += `\n❀ Se lo quitaste a @${currentOwner.split('@')[0]}.`;
+            
+            // Mensaje personalizado según si había dueño previo
+            let replyMsg;
+            if (currentOwnerId) {
+                replyMsg = formatMessage(`❀ Personaje *${charName}* (ID: ${charId}) transferido de ${oldOwnerName} a @${targetId.split('@')[0]}.`);
+            } else {
+                replyMsg = formatMessage(`❀ Personaje *${charName}* (ID: ${charId}) ha sido dado a @${targetId.split('@')[0]}.`);
             }
-            client.reply(m.chat, formatMessage(replyMsg), m, { mentions: [targetId, currentOwner].filter(Boolean) });
+            
+            client.reply(m.chat, replyMsg, m, { mentions: [targetId] });
 
         } catch (error) {
             console.error(error);
