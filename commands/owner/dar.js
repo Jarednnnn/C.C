@@ -16,8 +16,8 @@ function flattenCharacters(structure) {
 const formatMessage = (text) => `《✧》 ${text}`;
 
 export default {
-    command: ['dar', 'givechar', 'givewaifu'], // 'dar' como principal
-    isOwner: true, // Solo owner
+    command: ['dar', 'regalo', 'darputa'],
+    isOwner: true,
     run: async (client, m, args, usedPrefix, command) => {
         try {
             // Obtener usuario destino (mención o cita)
@@ -28,16 +28,15 @@ export default {
             }
             const targetId = await resolveLidToRealJid(who2, client, m.chat);
 
-            // El primer argumento es el identificador del personaje (ID o nombre)
             if (args.length < 1) {
                 return client.reply(m.chat, formatMessage('ꕥ Ingresa el ID o nombre del personaje.\nEjemplo: #dar 100001 @usuario  o  #dar Lelouch @usuario'), m);
             }
 
-            const identifier = args.join(' ').trim(); // Puede ser "100001" o "Lelouch Lamperouge"
+            const identifier = args.join(' ').trim();
 
             await m.react('🕒');
 
-            // Cargar catálogo de personajes
+            // Cargar catálogo
             let catalog;
             try {
                 catalog = await loadCharacters();
@@ -48,13 +47,13 @@ export default {
 
             const allCharacters = flattenCharacters(catalog);
 
-            // Buscar personaje por ID (si el identificador es un número)
+            // Buscar personaje
             let character;
-            if (/^\d+$/.test(identifier)) { // solo dígitos
-                character = allCharacters.find(c => c.id == identifier);
+            if (/^\d+$/.test(identifier)) {
+                character = allCharacters.find(c => String(c.id) === identifier);
             } else {
-                // Buscar por nombre (case insensitive)
-                character = allCharacters.find(c => c.name.toLowerCase() === identifier.toLowerCase());
+                character = allCharacters.find(c => c.name.toLowerCase() === identifier.toLowerCase()) ||
+                            allCharacters.find(c => c.name.toLowerCase().includes(identifier.toLowerCase()));
             }
 
             if (!character) {
@@ -62,7 +61,7 @@ export default {
                 return client.reply(m.chat, formatMessage(`❀ No se encontró ningún personaje con el identificador: *${identifier}*.`), m);
             }
 
-            const charId = character.id;
+            const charId = String(character.id); // Asegurar string
             const charName = character.name;
 
             // ========== PREPARAR ESTRUCTURAS ==========
@@ -75,7 +74,8 @@ export default {
                 global.db.data.chats[m.chat].characters[charId] = {
                     name: charName,
                     value: character.value || 100,
-                    // otros campos que quieras copiar
+                    user: null,
+                    claimedAt: null
                 };
             }
 
@@ -96,7 +96,7 @@ export default {
                 global.db.data.chats[m.chat].users[targetId].characters = [];
             }
 
-            // Verificar si ya lo tiene (opcional, puedes evitar duplicados)
+            // Verificar si ya lo tiene (opcional)
             if (global.db.data.chats[m.chat].users[targetId].characters.includes(charId)) {
                 await m.react('✖️');
                 return client.reply(m.chat, formatMessage(`❀ El usuario ya tiene el personaje *${charName}* (ID: ${charId}).`), m);
@@ -105,8 +105,9 @@ export default {
             // Añadir el ID al array del usuario destino
             global.db.data.chats[m.chat].users[targetId].characters.push(charId);
 
-            // Asignar la propiedad del personaje en chat.characters (opcional, pero consistente)
+            // Actualizar la propiedad en chat.characters
             global.db.data.chats[m.chat].characters[charId].user = targetId;
+            global.db.data.chats[m.chat].characters[charId].claimedAt = Date.now();
 
             // ========== TAMBIÉN GUARDAR EN users GLOBAL (por si acaso) ==========
             if (!global.db.data.users[targetId]) {
