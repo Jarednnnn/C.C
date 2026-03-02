@@ -18358,74 +18358,75 @@
       }
     ]
   },
- "900000001": {
+ {
+  "900000001": {
     "name": "Hellsing",
     "characters": [
       {
-        "id": "1",
+        "id": "900000039",
         "name": "Alucard",
         "gender": "Hombre",
         "tags": ["alucard_(hellsing)"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000040",
         "name": "Seras Victoria",
         "gender": "Mujer",
         "tags": ["seras_victoria"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000041",
         "name": "Integra Hellsing",
         "gender": "Mujer",
         "tags": ["integra_hellsing"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000042",
         "name": "Walter C. Dornez",
         "gender": "Hombre",
         "tags": ["walter_c._dornez"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000043",
         "name": "Alexander Anderson",
         "gender": "Hombre",
         "tags": ["alexander_anderson"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000044",
         "name": "Enrico Maxwell",
         "gender": "Hombre",
         "tags": ["enrico_maxwell"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000045",
         "name": "Rip van Winkle",
         "gender": "Mujer",
         "tags": ["rip_van_winkle"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000046",
         "name": "The Captain",
         "gender": "Hombre",
         "tags": ["the_captain_(hellsing)"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000047",
         "name": "Zorin Blitz",
         "gender": "Mujer",
         "tags": ["zorin_blitz"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000048",
         "name": "Schrödinger",
         "gender": "Hombre",
         "tags": ["schrodinger_(hellsing)"],
@@ -18437,70 +18438,70 @@
     "name": "Tsuki ga Michibiku Isekai Douchuu",
     "characters": [
       {
-        "id": "1",
+        "id": "900000049",
         "name": "Makoto Misumi",
         "gender": "Hombre",
         "tags": ["makoto_misumi"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000050",
         "name": "Tomoe",
         "gender": "Mujer",
         "tags": ["tomoe_(tsukimichi)"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000051",
         "name": "Mio",
         "gender": "Mujer",
         "tags": ["mio_(tsukimichi)"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000052",
         "name": "Shiki",
         "gender": "Hombre",
         "tags": ["shiki_(tsukimichi)"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000053",
         "name": "Hibiki Otonashi",
         "gender": "Mujer",
         "tags": ["hibiki_otonashi"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000054",
         "name": "Sofia Bulga",
         "gender": "Mujer",
         "tags": ["sofia_bulga"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000055",
         "name": "Navarre Parna",
         "gender": "Hombre",
         "tags": ["navarre_parna"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000056",
         "name": "Ranka",
         "gender": "Mujer",
         "tags": ["ranka_(tsukimichi)"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000057",
         "name": "Emma",
         "gender": "Mujer",
         "tags": ["emma_(tsukimichi)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000058",
         "name": "Tsukuyomi-no-Mikoto",
         "gender": "Hombre",
         "tags": ["tsukuyomi-no-mikoto"],
@@ -18512,56 +18513,56 @@
     "name": "SSS-Class Suicide Hunter",
     "characters": [
       {
-        "id": "1",
+        "id": "900000059",
         "name": "Kim Gongja",
         "gender": "Hombre",
         "tags": ["kim_gongja"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000060",
         "name": "Raviel",
         "gender": "Mujer",
         "tags": ["raviel_(sss-class_suicide_hunter)"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000061",
         "name": "The Flame Emperor",
         "gender": "Hombre",
         "tags": ["the_flame_emperor"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000062",
         "name": "Hwang Jeongsu",
         "gender": "Hombre",
         "tags": ["hwang_jeongsu"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000063",
         "name": "Nam Sunhwa",
         "gender": "Mujer",
         "tags": ["nam_sunhwa"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000064",
         "name": "Sage",
         "gender": "Hombre",
         "tags": ["sage_(sss-class_suicide_hunter)"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000065",
         "name": "Black Dragon King",
         "gender": "Hombre",
         "tags": ["black_dragon_king"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000066",
         "name": "Sylvia",
         "gender": "Mujer",
         "tags": ["sylvia_(sss-class_suicide_hunter)"],
@@ -18573,70 +18574,70 @@
     "name": "Darwin's Game",
     "characters": [
       {
-        "id": "1",
+        "id": "900000067",
         "name": "Kaname Sudou",
         "gender": "Hombre",
         "tags": ["sudou_kaname"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000068",
         "name": "Shuka Karino",
         "gender": "Mujer",
         "tags": ["karino_shuka"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000069",
         "name": "Rain Jougasaki",
         "gender": "Mujer",
         "tags": ["jougasaki_rain"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000070",
         "name": "Ryuji Maesaka",
         "gender": "Hombre",
         "tags": ["maesaka_ryuji"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000071",
         "name": "Sui",
         "gender": "Mujer",
         "tags": ["sui_(darwin's_game)"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000072",
         "name": "Souta",
         "gender": "Hombre",
         "tags": ["souta_(darwin's_game)"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000073",
         "name": "Kazuya Karino",
         "gender": "Hombre",
         "tags": ["karino_kazuya"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000074",
         "name": "Hamaguchi",
         "gender": "Hombre",
         "tags": ["hamaguchi_(darwin's_game)"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000075",
         "name": "Inada",
         "gender": "Hombre",
         "tags": ["inada_(darwin's_game)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000076",
         "name": "Wang",
         "gender": "Hombre",
         "tags": ["wang_(darwin's_game)"],
@@ -18648,70 +18649,70 @@
     "name": "The Daily Life of the Immortal King",
     "characters": [
       {
-        "id": "1",
+        "id": "900000077",
         "name": "Wang Ling",
         "gender": "Hombre",
         "tags": ["wang_ling_(the_daily_life_of_the_immortal_king)"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000078",
         "name": "Sun Rong",
         "gender": "Mujer",
         "tags": ["sun_rong"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000079",
         "name": "Guo Hao",
         "gender": "Hombre",
         "tags": ["guo_hao"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000080",
         "name": "Wang Ming",
         "gender": "Hombre",
         "tags": ["wang_ming"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000081",
         "name": "Li Doudou",
         "gender": "Mujer",
         "tags": ["li_doudou"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000082",
         "name": "Chen Chao",
         "gender": "Hombre",
         "tags": ["chen_chao"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000083",
         "name": "Ying Yujie",
         "gender": "Mujer",
         "tags": ["ying_yujie"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000084",
         "name": "Xiao Yin",
         "gender": "Mujer",
         "tags": ["xiao_yin"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000085",
         "name": "Sun Zhong",
         "gender": "Hombre",
         "tags": ["sun_zhong"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000086",
         "name": "Principal",
         "gender": "Hombre",
         "tags": ["principal_(the_daily_life_of_the_immortal_king)"],
@@ -18723,70 +18724,70 @@
     "name": "Ragna Crimson",
     "characters": [
       {
-        "id": "1",
+        "id": "900000087",
         "name": "Ragna",
         "gender": "Hombre",
         "tags": ["ragna_(ragna_crimson)"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000088",
         "name": "Crimson",
         "gender": "Hombre",
         "tags": ["crimson_(ragna_crimson)"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000089",
         "name": "Leonica",
         "gender": "Mujer",
         "tags": ["leonica_(ragna_crimson)"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000090",
         "name": "Starlia",
         "gender": "Mujer",
         "tags": ["starlia_(ragna_crimson)"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000091",
         "name": "Golem",
         "gender": "Hombre",
         "tags": ["golem_(ragna_crimson)"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000092",
         "name": "Ultimatia",
         "gender": "Mujer",
         "tags": ["ultimatia_(ragna_crimson)"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000093",
         "name": "Bagram",
         "gender": "Hombre",
         "tags": ["bagram_(ragna_crimson)"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000094",
         "name": "Kou Tenran",
         "gender": "Mujer",
         "tags": ["kou_tenran"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000095",
         "name": "Chantior",
         "gender": "Mujer",
         "tags": ["chantior_(ragna_crimson)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000096",
         "name": "Gilzea",
         "gender": "Mujer",
         "tags": ["gilzea_(ragna_crimson)"],
@@ -18798,84 +18799,84 @@
     "name": "Elfen Lied",
     "characters": [
       {
-        "id": "1",
+        "id": "900000097",
         "name": "Lucy",
         "gender": "Mujer",
         "tags": ["lucy_(elfen_lied)"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000098",
         "name": "Kouta",
         "gender": "Hombre",
         "tags": ["kouta_(elfen_lied)"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000099",
         "name": "Nana",
         "gender": "Mujer",
         "tags": ["nana_(elfen_lied)"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000100",
         "name": "Mayu",
         "gender": "Mujer",
         "tags": ["mayu_(elfen_lied)"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000101",
         "name": "Yuka",
         "gender": "Mujer",
         "tags": ["yuka_(elfen_lied)"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000102",
         "name": "Nyuu",
         "gender": "Mujer",
         "tags": ["nyuu"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000103",
         "name": "Bando",
         "gender": "Hombre",
         "tags": ["bando_(elfen_lied)"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000104",
         "name": "Kurama",
         "gender": "Hombre",
         "tags": ["kurama_(elfen_lied)"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000105",
         "name": "Kisaragi",
         "gender": "Hombre",
         "tags": ["kisaragi_(elfen_lied)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000106",
         "name": "Mariko",
         "gender": "Mujer",
         "tags": ["mariko_(elfen_lied)"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000107",
         "name": "Arakawa",
         "gender": "Mujer",
         "tags": ["arakawa_(elfen_lied)"],
         "value": 100
       },
       {
-        "id": "12",
+        "id": "900000108",
         "name": "Shirakawa",
         "gender": "Mujer",
         "tags": ["shirakawa_(elfen_lied)"],
@@ -18887,245 +18888,245 @@
     "name": "Fairy Tail",
     "characters": [
       {
-        "id": "1",
+        "id": "900000109",
         "name": "Natsu Dragneel",
         "gender": "Hombre",
         "tags": ["natsu_dragneel"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000110",
         "name": "Lucy Heartfilia",
         "gender": "Mujer",
         "tags": ["lucy_heartfilia"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000111",
         "name": "Happy",
         "gender": "Hombre",
         "tags": ["happy_(fairy_tail)"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000112",
         "name": "Gray Fullbuster",
         "gender": "Hombre",
         "tags": ["gray_fullbuster"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000113",
         "name": "Erza Scarlet",
         "gender": "Mujer",
         "tags": ["erza_scarlet"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000114",
         "name": "Wendy Marvell",
         "gender": "Mujer",
         "tags": ["wendy_marvell"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000115",
         "name": "Charles",
         "gender": "Mujer",
         "tags": ["charles_(fairy_tail)"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000116",
         "name": "Makarov Dreyar",
         "gender": "Hombre",
         "tags": ["makarov_dreyar"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000117",
         "name": "Laxus Dreyar",
         "gender": "Hombre",
         "tags": ["laxus_dreyar"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000118",
         "name": "Mirajane Strauss",
         "gender": "Mujer",
         "tags": ["mirajane_strauss"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000119",
         "name": "Elfman Strauss",
         "gender": "Hombre",
         "tags": ["elfman_strauss"],
         "value": 100
       },
       {
-        "id": "12",
+        "id": "900000120",
         "name": "Lisanna Strauss",
         "gender": "Mujer",
         "tags": ["lisanna_strauss"],
         "value": 100
       },
       {
-        "id": "13",
+        "id": "900000121",
         "name": "Juvia Lockser",
         "gender": "Mujer",
         "tags": ["juvia_lockser"],
         "value": 100
       },
       {
-        "id": "14",
+        "id": "900000122",
         "name": "Gajeel Redfox",
         "gender": "Hombre",
         "tags": ["gajeel_redfox"],
         "value": 100
       },
       {
-        "id": "15",
+        "id": "900000123",
         "name": "Levy McGarden",
         "gender": "Mujer",
         "tags": ["levy_mcgarden"],
         "value": 100
       },
       {
-        "id": "16",
+        "id": "900000124",
         "name": "Panther Lily",
         "gender": "Hombre",
         "tags": ["panther_lily"],
         "value": 100
       },
       {
-        "id": "17",
+        "id": "900000125",
         "name": "Cana Alberona",
         "gender": "Mujer",
         "tags": ["cana_alberona"],
         "value": 100
       },
       {
-        "id": "18",
+        "id": "900000126",
         "name": "Freed Justine",
         "gender": "Hombre",
         "tags": ["freed_justine"],
         "value": 100
       },
       {
-        "id": "19",
+        "id": "900000127",
         "name": "Bickslow",
         "gender": "Hombre",
         "tags": ["bickslow"],
         "value": 100
       },
       {
-        "id": "20",
+        "id": "900000128",
         "name": "Evergreen",
         "gender": "Mujer",
         "tags": ["evergreen_(fairy_tail)"],
         "value": 100
       },
       {
-        "id": "21",
+        "id": "900000129",
         "name": "Mest Gryder",
         "gender": "Hombre",
         "tags": ["mest_gryder"],
         "value": 100
       },
       {
-        "id": "22",
+        "id": "900000130",
         "name": "Zeref",
         "gender": "Hombre",
         "tags": ["zeref"],
         "value": 100
       },
       {
-        "id": "23",
+        "id": "900000131",
         "name": "Acnologia",
         "gender": "Hombre",
         "tags": ["acnologia"],
         "value": 100
       },
       {
-        "id": "24",
+        "id": "900000132",
         "name": "Jellal Fernandes",
         "gender": "Hombre",
         "tags": ["jellal_fernandes"],
         "value": 100
       },
       {
-        "id": "25",
+        "id": "900000133",
         "name": "Ultear Milkovich",
         "gender": "Mujer",
         "tags": ["ultear_milkovich"],
         "value": 100
       },
       {
-        "id": "26",
+        "id": "900000134",
         "name": "Meredy",
         "gender": "Mujer",
         "tags": ["meredy"],
         "value": 100
       },
       {
-        "id": "27",
+        "id": "900000135",
         "name": "Lyon Vastia",
         "gender": "Hombre",
         "tags": ["lyon_vastia"],
         "value": 100
       },
       {
-        "id": "28",
+        "id": "900000136",
         "name": "Ichiya Vandalay Kotobuki",
         "gender": "Hombre",
         "tags": ["ichiya_vandalay_kotobuki"],
         "value": 100
       },
       {
-        "id": "29",
+        "id": "900000137",
         "name": "Anna Heartfilia",
         "gender": "Mujer",
         "tags": ["anna_heartfilia"],
         "value": 100
       },
       {
-        "id": "30",
+        "id": "900000138",
         "name": "Rogue Cheney",
         "gender": "Hombre",
         "tags": ["rogue_cheney"],
         "value": 100
       },
       {
-        "id": "31",
+        "id": "900000139",
         "name": "Sting Eucliffe",
         "gender": "Hombre",
         "tags": ["sting_eucliffe"],
         "value": 100
       },
       {
-        "id": "32",
+        "id": "900000140",
         "name": "Minerva Orland",
         "gender": "Mujer",
         "tags": ["minerva_orland"],
         "value": 100
       },
       {
-        "id": "33",
+        "id": "900000141",
         "name": "Kagura Mikazuchi",
         "gender": "Mujer",
         "tags": ["kagura_mikazuchi"],
         "value": 100
       },
       {
-        "id": "34",
+        "id": "900000142",
         "name": "Millianna",
         "gender": "Mujer",
         "tags": ["millianna"],
         "value": 100
       },
       {
-        "id": "35",
+        "id": "900000143",
         "name": "Sherria Blendy",
         "gender": "Mujer",
         "tags": ["sherria_blendy"],
@@ -19137,63 +19138,63 @@
     "name": "Became the Strongest With The Failure Frame (Abnormal State Skill) As I Devastated Everything",
     "characters": [
       {
-        "id": "1",
+        "id": "900000144",
         "name": "Touka Mimori",
         "gender": "Hombre",
         "tags": ["touka_mimori"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000145",
         "name": "Seras Ashrain",
         "gender": "Mujer",
         "tags": ["seras_ashrain"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000146",
         "name": "Piggymaru",
         "gender": "Desconocido",
         "tags": ["piggymaru"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000147",
         "name": "Liz",
         "gender": "Mujer",
         "tags": ["liz_(failure_frame)"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000148",
         "name": "Celia",
         "gender": "Mujer",
         "tags": ["celia_(failure_frame)"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000149",
         "name": "Erika",
         "gender": "Mujer",
         "tags": ["erika_(failure_frame)"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000150",
         "name": "Vysis",
         "gender": "Mujer",
         "tags": ["vysis_(failure_frame)"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000151",
         "name": "Kirihara",
         "gender": "Hombre",
         "tags": ["kirihara_(failure_frame)"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000152",
         "name": "Niya",
         "gender": "Mujer",
         "tags": ["niya_(failure_frame)"],
@@ -19205,70 +19206,70 @@
     "name": "Charlotte",
     "characters": [
       {
-        "id": "1",
+        "id": "900000153",
         "name": "Yuu Otosaka",
         "gender": "Hombre",
         "tags": ["yuu_otosaka"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000154",
         "name": "Nao Tomori",
         "gender": "Mujer",
         "tags": ["nao_tomori"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000155",
         "name": "Joujirou Takajou",
         "gender": "Hombre",
         "tags": ["joujirou_takajou"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000156",
         "name": "Yusa Nishimori",
         "gender": "Mujer",
         "tags": ["yusa_nishimori"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000157",
         "name": "Kumagami",
         "gender": "Hombre",
         "tags": ["kumagami_(charlotte)"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000158",
         "name": "Ayumi Otosaka",
         "gender": "Mujer",
         "tags": ["ayumi_otosaka"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000159",
         "name": "Kazuki Tomori",
         "gender": "Hombre",
         "tags": ["kazuki_tomori"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000160",
         "name": "Shunsuke Otosaka",
         "gender": "Hombre",
         "tags": ["shunsuke_otosaka"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000161",
         "name": "Misa Nishimori",
         "gender": "Mujer",
         "tags": ["misa_nishimori"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000162",
         "name": "Medoki",
         "gender": "Mujer",
         "tags": ["medoki"],
@@ -19280,105 +19281,105 @@
     "name": "Medaka Box",
     "characters": [
       {
-        "id": "1",
+        "id": "900000163",
         "name": "Medaka Kurokami",
         "gender": "Mujer",
         "tags": ["medaka_kurokami"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000164",
         "name": "Zenkichi Hitoyoshi",
         "gender": "Hombre",
         "tags": ["zenkichi_hitoyoshi"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000165",
         "name": "Kikaijima Mogana",
         "gender": "Mujer",
         "tags": ["kikaijima_mogana"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000166",
         "name": "Hansode Shiranui",
         "gender": "Mujer",
         "tags": ["hansode_shiranui"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000167",
         "name": "Kumagawa Misogi",
         "gender": "Hombre",
         "tags": ["kumagawa_misogi"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000168",
         "name": "Anshin'in",
         "gender": "Mujer",
         "tags": ["anshin'in"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000169",
         "name": "Najimi Aijimu",
         "gender": "Mujer",
         "tags": ["najimi_aijimu"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000170",
         "name": "Shigusa Kikaijima",
         "gender": "Mujer",
         "tags": ["shigusa_kikaijima"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000171",
         "name": "Hyouka Kazakami",
         "gender": "Hombre",
         "tags": ["hyouka_kazakami"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000172",
         "name": "Nekomi Nabeshima",
         "gender": "Mujer",
         "tags": ["nekomi_nabeshima"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000173",
         "name": "Shiraishi Kodama",
         "gender": "Mujer",
         "tags": ["shiraishi_kodama"],
         "value": 100
       },
       {
-        "id": "12",
+        "id": "900000174",
         "name": "Maki Shiki",
         "gender": "Mujer",
         "tags": ["maki_shiki"],
         "value": 100
       },
       {
-        "id": "13",
+        "id": "900000175",
         "name": "Saki Sukinasaki",
         "gender": "Mujer",
         "tags": ["saki_sukinasaki"],
         "value": 100
       },
       {
-        "id": "14",
+        "id": "900000176",
         "name": "Unzen Myouri",
         "gender": "Hombre",
         "tags": ["unzen_myouri"],
         "value": 100
       },
       {
-        "id": "15",
+        "id": "900000177",
         "name": "Akune Souji",
         "gender": "Hombre",
         "tags": ["akune_souji"],
@@ -19390,126 +19391,126 @@
     "name": "Angel Beats!",
     "characters": [
       {
-        "id": "1",
+        "id": "900000178",
         "name": "Yuzuru Otonashi",
         "gender": "Hombre",
         "tags": ["otonashi_yuzuru"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000179",
         "name": "Yuri Nakamura",
         "gender": "Mujer",
         "tags": ["yuri_nakamura"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000180",
         "name": "Angel / Kanade Tachibana",
         "gender": "Mujer",
         "tags": ["tachibana_kanade"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000181",
         "name": "Hideki Hinata",
         "gender": "Hombre",
         "tags": ["hinata_hideki"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000182",
         "name": "Takamatsu",
         "gender": "Hombre",
         "tags": ["takamatsu_(angel_beats)"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000183",
         "name": "Noda",
         "gender": "Hombre",
         "tags": ["noda_(angel_beats)"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000184",
         "name": "Matsushita",
         "gender": "Hombre",
         "tags": ["matsushita_(angel_beats)"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000185",
         "name": "Yusa",
         "gender": "Mujer",
         "tags": ["yusa_(angel_beats)"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000186",
         "name": "Igarashi",
         "gender": "Mujer",
         "tags": ["igarashi_(angel_beats)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000187",
         "name": "Sato",
         "gender": "Hombre",
         "tags": ["sato_(angel_beats)"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000188",
         "name": "Hisako",
         "gender": "Mujer",
         "tags": ["hisako_(angel_beats)"],
         "value": 100
       },
       {
-        "id": "12",
+        "id": "900000189",
         "name": "Miyuki Irie",
         "gender": "Mujer",
         "tags": ["irie_miyuki"],
         "value": 100
       },
       {
-        "id": "13",
+        "id": "900000190",
         "name": "Shiori Sekine",
         "gender": "Mujer",
         "tags": ["sekine_shiori"],
         "value": 100
       },
       {
-        "id": "14",
+        "id": "900000191",
         "name": "Yui",
         "gender": "Mujer",
         "tags": ["yui_(angel_beats)"],
         "value": 100
       },
       {
-        "id": "15",
+        "id": "900000192",
         "name": "TK",
         "gender": "Hombre",
         "tags": ["tk_(angel_beats)"],
         "value": 100
       },
       {
-        "id": "16",
+        "id": "900000193",
         "name": "Ooyama",
         "gender": "Hombre",
         "tags": ["ooyama_(angel_beats)"],
         "value": 100
       },
       {
-        "id": "17",
+        "id": "900000194",
         "name": "Fujimaki",
         "gender": "Hombre",
         "tags": ["fujimaki_(angel_beats)"],
         "value": 100
       },
       {
-        "id": "18",
+        "id": "900000195",
         "name": "Masami Iwasawa",
         "gender": "Mujer",
         "tags": ["masami_iwasawa"],
@@ -19521,119 +19522,119 @@
     "name": "Hazbin Hotel",
     "characters": [
       {
-        "id": "1",
+        "id": "900000196",
         "name": "Charlie Morningstar",
         "gender": "Mujer",
         "tags": ["charlie_morningstar"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000197",
         "name": "Vaggie",
         "gender": "Mujer",
         "tags": ["vaggie"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000198",
         "name": "Angel Dust",
         "gender": "Hombre",
         "tags": ["angel_dust_(hazbin_hotel)"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000199",
         "name": "Alastor",
         "gender": "Hombre",
         "tags": ["alastor_(hazbin_hotel)"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000200",
         "name": "Husk",
         "gender": "Hombre",
         "tags": ["husk_(hazbin_hotel)"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000201",
         "name": "Niffty",
         "gender": "Mujer",
         "tags": ["niffty_(hazbin_hotel)"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000202",
         "name": "Sir Pentious",
         "gender": "Hombre",
         "tags": ["sir_pentious"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000203",
         "name": "Adam",
         "gender": "Hombre",
         "tags": ["adam_(hazbin_hotel)"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000204",
         "name": "Lute",
         "gender": "Mujer",
         "tags": ["lute_(hazbin_hotel)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000205",
         "name": "Sera",
         "gender": "Mujer",
         "tags": ["sera_(hazbin_hotel)"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000206",
         "name": "Emily",
         "gender": "Mujer",
         "tags": ["emily_(hazbin_hotel)"],
         "value": 100
       },
       {
-        "id": "12",
+        "id": "900000207",
         "name": "St. Peter",
         "gender": "Hombre",
         "tags": ["st._peter_(hazbin_hotel)"],
         "value": 100
       },
       {
-        "id": "13",
+        "id": "900000208",
         "name": "Velvette",
         "gender": "Mujer",
         "tags": ["velvette"],
         "value": 100
       },
       {
-        "id": "14",
+        "id": "900000209",
         "name": "Vox",
         "gender": "Hombre",
         "tags": ["vox_(hazbin_hotel)"],
         "value": 100
       },
       {
-        "id": "15",
+        "id": "900000210",
         "name": "Valentino",
         "gender": "Hombre",
         "tags": ["valentino_(hazbin_hotel)"],
         "value": 100
       },
       {
-        "id": "16",
+        "id": "900000211",
         "name": "Zestial",
         "gender": "Hombre",
         "tags": ["zestial"],
         "value": 100
       },
       {
-        "id": "17",
+        "id": "900000212",
         "name": "Carmilla Carmine",
         "gender": "Mujer",
         "tags": ["carmilla_carmine"],
@@ -19645,105 +19646,105 @@
     "name": "Helluva Boss",
     "characters": [
       {
-        "id": "1",
+        "id": "900000213",
         "name": "Blitzo",
         "gender": "Hombre",
         "tags": ["blitzo"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000214",
         "name": "Moxxie",
         "gender": "Hombre",
         "tags": ["moxxie"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000215",
         "name": "Millie",
         "gender": "Mujer",
         "tags": ["millie_(helluva_boss)"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000216",
         "name": "Loona",
         "gender": "Mujer",
         "tags": ["loona_(helluva_boss)"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000217",
         "name": "Stolas",
         "gender": "Hombre",
         "tags": ["stolas_(helluva_boss)"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000218",
         "name": "Octavia",
         "gender": "Mujer",
         "tags": ["octavia_(helluva_boss)"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000219",
         "name": "Striker",
         "gender": "Hombre",
         "tags": ["striker_(helluva_boss)"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000220",
         "name": "Fizzarolli",
         "gender": "Hombre",
         "tags": ["fizzarolli"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000221",
         "name": "Asmodeus",
         "gender": "Hombre",
         "tags": ["asmodeus_(helluva_boss)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000222",
         "name": "Verosika Mayday",
         "gender": "Mujer",
         "tags": ["verosika_mayday"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000223",
         "name": "Crimson",
         "gender": "Hombre",
         "tags": ["crimson_(helluva_boss)"],
         "value": 100
       },
       {
-        "id": "12",
+        "id": "900000224",
         "name": "Paimon",
         "gender": "Hombre",
         "tags": ["paimon_(helluva_boss)"],
         "value": 100
       },
       {
-        "id": "13",
+        "id": "900000225",
         "name": "Andrealphus",
         "gender": "Hombre",
         "tags": ["andrealphus"],
         "value": 100
       },
       {
-        "id": "14",
+        "id": "900000226",
         "name": "Mammon",
         "gender": "Hombre",
         "tags": ["mammon_(helluva_boss)"],
         "value": 100
       },
       {
-        "id": "15",
+        "id": "900000227",
         "name": "Barbie Wire",
         "gender": "Mujer",
         "tags": ["barbie_wire"],
@@ -19755,77 +19756,77 @@
     "name": "Sakamoto Days",
     "characters": [
       {
-        "id": "1",
+        "id": "900000228",
         "name": "Taro Sakamoto",
         "gender": "Hombre",
         "tags": ["taro_sakamoto"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000229",
         "name": "Shin",
         "gender": "Hombre",
         "tags": ["shin_(sakamoto_days)"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000230",
         "name": "Lu Xiaotang",
         "gender": "Mujer",
         "tags": ["lu_xiaotang"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000231",
         "name": "Aoi Sakamoto",
         "gender": "Mujer",
         "tags": ["aoi_sakamoto"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000232",
         "name": "Hana Sakamoto",
         "gender": "Mujer",
         "tags": ["hana_sakamoto"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000233",
         "name": "Nagumo",
         "gender": "Hombre",
         "tags": ["nagumo_(sakamoto_days)"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000234",
         "name": "Osaragi",
         "gender": "Mujer",
         "tags": ["osaragi_(sakamoto_days)"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000235",
         "name": "Kashima",
         "gender": "Hombre",
         "tags": ["kashima_(sakamoto_days)"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000236",
         "name": "Seo",
         "gender": "Hombre",
         "tags": ["seo_(sakamoto_days)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000237",
         "name": "Takamura",
         "gender": "Hombre",
         "tags": ["takamura_(sakamoto_days)"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000238",
         "name": "Yotsumura",
         "gender": "Hombre",
         "tags": ["yotsumura_(sakamoto_days)"],
@@ -19837,98 +19838,98 @@
     "name": "Drifters",
     "characters": [
       {
-        "id": "1",
+        "id": "900000239",
         "name": "Shimazu Toyohisa",
         "gender": "Hombre",
         "tags": ["shimazu_toyohisa"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000240",
         "name": "Oda Nobunaga",
         "gender": "Hombre",
         "tags": ["oda_nobunaga_(drifters)"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000241",
         "name": "Nasu no Yoichi",
         "gender": "Hombre",
         "tags": ["nasu_no_yoichi"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000242",
         "name": "Hijikata Toshizo",
         "gender": "Hombre",
         "tags": ["hijikata_toshizo"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000243",
         "name": "Butch Cassidy",
         "gender": "Hombre",
         "tags": ["butch_cassidy_(drifters)"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000244",
         "name": "Sundance Kid",
         "gender": "Hombre",
         "tags": ["sundance_kid"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000245",
         "name": "Scipio Africanus",
         "gender": "Hombre",
         "tags": ["scipio_africanus"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000246",
         "name": "Hannibal Barca",
         "gender": "Hombre",
         "tags": ["hannibal_barca"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000247",
         "name": "Jeanne d'Arc",
         "gender": "Mujer",
         "tags": ["jeanne_d'arc_(drifters)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000248",
         "name": "Gilles de Rais",
         "gender": "Hombre",
         "tags": ["gilles_de_rais"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000249",
         "name": "Rasputin",
         "gender": "Hombre",
         "tags": ["rasputin_(drifters)"],
         "value": 100
       },
       {
-        "id": "12",
+        "id": "900000250",
         "name": "Anastasia Nikolaevna",
         "gender": "Mujer",
         "tags": ["anastasia_nikolaevna"],
         "value": 100
       },
       {
-        "id": "13",
+        "id": "900000251",
         "name": "The Black King",
         "gender": "Hombre",
         "tags": ["the_black_king_(drifters)"],
         "value": 100
       },
       {
-        "id": "14",
+        "id": "900000252",
         "name": "Minamoto no Yoshitsune",
         "gender": "Hombre",
         "tags": ["minamoto_no_yoshitsune"],
@@ -19940,42 +19941,42 @@
     "name": "Angels of Death",
     "characters": [
       {
-        "id": "1",
+        "id": "900000253",
         "name": "Rachel Gardner",
         "gender": "Mujer",
         "tags": ["rachel_gardner"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000254",
         "name": "Isaac Foster",
         "gender": "Hombre",
         "tags": ["isaac_foster"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000255",
         "name": "Zack",
         "gender": "Hombre",
         "tags": ["zack_(angels_of_death)"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000256",
         "name": "Eddie",
         "gender": "Hombre",
         "tags": ["eddie_(angels_of_death)"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000257",
         "name": "Catherine Ward",
         "gender": "Mujer",
         "tags": ["catherine_ward"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000258",
         "name": "Gray",
         "gender": "Hombre",
         "tags": ["gray_(angels_of_death)"],
@@ -19987,77 +19988,77 @@
     "name": "Another",
     "characters": [
       {
-        "id": "1",
+        "id": "900000259",
         "name": "Koichi Sakakibara",
         "gender": "Hombre",
         "tags": ["koichi_sakakibara"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000260",
         "name": "Mei Misaki",
         "gender": "Mujer",
         "tags": ["mei_misaki"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000261",
         "name": "Reiko Mikami",
         "gender": "Mujer",
         "tags": ["reiko_mikami"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000262",
         "name": "Tomohiko Kazami",
         "gender": "Hombre",
         "tags": ["tomohiko_kazami"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000263",
         "name": "Yukari Sakuragi",
         "gender": "Mujer",
         "tags": ["yukari_sakuragi"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000264",
         "name": "Naoya Teshigawara",
         "gender": "Hombre",
         "tags": ["naoya_teshigawara"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000265",
         "name": "Yui Mochizuki",
         "gender": "Mujer",
         "tags": ["yui_mochizuki"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000266",
         "name": "Akazawa Izumi",
         "gender": "Mujer",
         "tags": ["akazawa_izumi"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000267",
         "name": "Kazami Shuji",
         "gender": "Hombre",
         "tags": ["kazami_shuji"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000268",
         "name": "Misaki Fujioka",
         "gender": "Mujer",
         "tags": ["misaki_fujioka"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000269",
         "name": "Tatsuji Chibiki",
         "gender": "Hombre",
         "tags": ["tatsuji_chibiki"],
@@ -20069,112 +20070,112 @@
     "name": "Ao no Exorcist",
     "characters": [
       {
-        "id": "1",
+        "id": "900000270",
         "name": "Rin Okumura",
         "gender": "Hombre",
         "tags": ["rin_okumura"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000271",
         "name": "Yukio Okumura",
         "gender": "Hombre",
         "tags": ["yukio_okumura"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000272",
         "name": "Shiemi Moriyama",
         "gender": "Mujer",
         "tags": ["shiemi_moriyama"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000273",
         "name": "Ryuji Suguro",
         "gender": "Hombre",
         "tags": ["ryuji_suguro"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000274",
         "name": "Renzo Shima",
         "gender": "Hombre",
         "tags": ["renzo_shima"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000275",
         "name": "Konekomaru Miwa",
         "gender": "Hombre",
         "tags": ["konekomaru_miwa"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000276",
         "name": "Mephisto Pheles",
         "gender": "Hombre",
         "tags": ["mephisto_pheles"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000277",
         "name": "Shiro Fujimoto",
         "gender": "Hombre",
         "tags": ["shiro_fujimoto"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000278",
         "name": "Amaimon",
         "gender": "Hombre",
         "tags": ["amaimon_(ao_no_exorcist)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000279",
         "name": "Kuro",
         "gender": "Hombre",
         "tags": ["kuro_(ao_no_exorcist)"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000280",
         "name": "Izumo Kamiki",
         "gender": "Mujer",
         "tags": ["izumo_kamiki"],
         "value": 100
       },
       {
-        "id": "12",
+        "id": "900000281",
         "name": "Noriko Paku",
         "gender": "Mujer",
         "tags": ["noriko_paku"],
         "value": 100
       },
       {
-        "id": "13",
+        "id": "900000282",
         "name": "Arthur Auguste Angel",
         "gender": "Hombre",
         "tags": ["arthur_auguste_angel"],
         "value": 100
       },
       {
-        "id": "14",
+        "id": "900000283",
         "name": "Light",
         "gender": "Hombre",
         "tags": ["light_(ao_no_exorcist)"],
         "value": 100
       },
       {
-        "id": "15",
+        "id": "900000284",
         "name": "Lucifer",
         "gender": "Hombre",
         "tags": ["lucifer_(ao_no_exorcist)"],
         "value": 100
       },
       {
-        "id": "16",
+        "id": "900000285",
         "name": "Saburota Todo",
         "gender": "Hombre",
         "tags": ["saburota_todo"],
@@ -20186,98 +20187,98 @@
     "name": "Arcane",
     "characters": [
       {
-        "id": "1",
+        "id": "900000286",
         "name": "Jinx",
         "gender": "Mujer",
         "tags": ["jinx_(arcane)"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000287",
         "name": "Vi",
         "gender": "Mujer",
         "tags": ["vi_(arcane)"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000288",
         "name": "Caitlyn Kiramman",
         "gender": "Mujer",
         "tags": ["caitlyn_kiramman"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000289",
         "name": "Jayce Talis",
         "gender": "Hombre",
         "tags": ["jayce_talis"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000290",
         "name": "Viktor",
         "gender": "Hombre",
         "tags": ["viktor_(arcane)"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000291",
         "name": "Silco",
         "gender": "Hombre",
         "tags": ["silco_(arcane)"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000292",
         "name": "Mel Medarda",
         "gender": "Mujer",
         "tags": ["mel_medarda"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000293",
         "name": "Ekko",
         "gender": "Hombre",
         "tags": ["ekko_(arcane)"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000294",
         "name": "Heimerdinger",
         "gender": "Hombre",
         "tags": ["heimerdinger_(arcane)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000295",
         "name": "Vander",
         "gender": "Hombre",
         "tags": ["vander_(arcane)"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000296",
         "name": "Sevika",
         "gender": "Mujer",
         "tags": ["sevika_(arcane)"],
         "value": 100
       },
       {
-        "id": "12",
+        "id": "900000297",
         "name": "Marcus",
         "gender": "Hombre",
         "tags": ["marcus_(arcane)"],
         "value": 100
       },
       {
-        "id": "13",
+        "id": "900000298",
         "name": "Ambessa Medarda",
         "gender": "Mujer",
         "tags": ["ambessa_medarda"],
         "value": 100
       },
       {
-        "id": "14",
+        "id": "900000299",
         "name": "Singed",
         "gender": "Hombre",
         "tags": ["singed_(arcane)"],
@@ -20289,42 +20290,42 @@
     "name": "Armed Girls Machiavelism",
     "characters": [
       {
-        "id": "1",
+        "id": "900000300",
         "name": "Rin Onigawara",
         "gender": "Mujer",
         "tags": ["rin_onigawara"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000301",
         "name": "Masamune Tomo",
         "gender": "Hombre",
         "tags": ["masamune_tomo"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000302",
         "name": "Kyouka Uekawa",
         "gender": "Mujer",
         "tags": ["kyouka_uekawa"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000303",
         "name": "Gekkou Hayashida",
         "gender": "Mujer",
         "tags": ["gekkou_hayashida"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000304",
         "name": "Shigure",
         "gender": "Mujer",
         "tags": ["shigure_(armed_girls_machiavelism)"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000305",
         "name": "Kyouka's Mother",
         "gender": "Mujer",
         "tags": ["kyouka's_mother"],
@@ -20336,105 +20337,105 @@
     "name": "Bakugan",
     "characters": [
       {
-        "id": "1",
+        "id": "900000306",
         "name": "Dan Kuso",
         "gender": "Hombre",
         "tags": ["dan_kuso"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000307",
         "name": "Runo Misaki",
         "gender": "Mujer",
         "tags": ["runo_misaki"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000308",
         "name": "Marucho Marukura",
         "gender": "Hombre",
         "tags": ["marucho_marukura"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000309",
         "name": "Julie Makimoto",
         "gender": "Mujer",
         "tags": ["julie_makimoto"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000310",
         "name": "Shun Kazami",
         "gender": "Hombre",
         "tags": ["shun_kazami"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000311",
         "name": "Alice Gehabich",
         "gender": "Mujer",
         "tags": ["alice_gehabich"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000312",
         "name": "Drago",
         "gender": "Hombre",
         "tags": ["drago_(bakugan)"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000313",
         "name": "Tigrerra",
         "gender": "Mujer",
         "tags": ["tigrerra"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000314",
         "name": "Preyas",
         "gender": "Hombre",
         "tags": ["preyas"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000315",
         "name": "Gorem",
         "gender": "Hombre",
         "tags": ["gorem"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000316",
         "name": "Skyress",
         "gender": "Mujer",
         "tags": ["skyress"],
         "value": 100
       },
       {
-        "id": "12",
+        "id": "900000317",
         "name": "Hydranoid",
         "gender": "Hombre",
         "tags": ["hydranoid"],
         "value": 100
       },
       {
-        "id": "13",
+        "id": "900000318",
         "name": "Masquerade",
         "gender": "Hombre",
         "tags": ["masquerade_(bakugan)"],
         "value": 100
       },
       {
-        "id": "14",
+        "id": "900000319",
         "name": "Klaus Von Hertzon",
         "gender": "Hombre",
         "tags": ["klaus_von_hertzon"],
         "value": 100
       },
       {
-        "id": "15",
+        "id": "900000320",
         "name": "Chan Lee",
         "gender": "Mujer",
         "tags": ["chan_lee"],
@@ -20450,70 +20451,70 @@
     "name": "Blue Period",
     "characters": [
       {
-        "id": "1",
+        "id": "900000321",
         "name": "Yatora Yaguchi",
         "gender": "Hombre",
         "tags": ["yatora_yaguchi"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000322",
         "name": "Ryuji Ayukawa",
         "gender": "Hombre",
         "tags": ["ryuji_ayukawa"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000323",
         "name": "Yotasuke Takahashi",
         "gender": "Hombre",
         "tags": ["yotasuke_takahashi"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000324",
         "name": "Haruka Hashida",
         "gender": "Mujer",
         "tags": ["haruka_hashida"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000325",
         "name": "Maki Kuwana",
         "gender": "Mujer",
         "tags": ["maki_kuwana"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000326",
         "name": "Saeki",
         "gender": "Mujer",
         "tags": ["saeki_(blue_period)"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000327",
         "name": "Shiro",
         "gender": "Hombre",
         "tags": ["shiro_(blue_period)"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000328",
         "name": "Morita",
         "gender": "Hombre",
         "tags": ["morita_(blue_period)"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000329",
         "name": "Ogura",
         "gender": "Hombre",
         "tags": ["ogura_(blue_period)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000330",
         "name": "Masako Saeki",
         "gender": "Mujer",
         "tags": ["masako_saeki"],
@@ -20525,84 +20526,84 @@
     "name": "Banana Fish",
     "characters": [
       {
-        "id": "1",
+        "id": "900000331",
         "name": "Ash Lynx",
         "gender": "Hombre",
         "tags": ["ash_lynx"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000332",
         "name": "Eiji Okumura",
         "gender": "Hombre",
         "tags": ["eiji_okumura"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000333",
         "name": "Max Lobo",
         "gender": "Hombre",
         "tags": ["max_lobo"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000334",
         "name": "Dino Golzine",
         "gender": "Hombre",
         "tags": ["dino_golzine"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000335",
         "name": "Shorter Wong",
         "gender": "Hombre",
         "tags": ["shorter_wong"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000336",
         "name": "Yut-Lung Lee",
         "gender": "Hombre",
         "tags": ["yut-lung_lee"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000337",
         "name": "Sing Soo-Ling",
         "gender": "Hombre",
         "tags": ["sing_soo-ling"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000338",
         "name": "Blanca",
         "gender": "Hombre",
         "tags": ["blanca_(banana_fish)"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000339",
         "name": "Ibe",
         "gender": "Hombre",
         "tags": ["ibe_(banana_fish)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000340",
         "name": "Jessica",
         "gender": "Mujer",
         "tags": ["jessica_(banana_fish)"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000341",
         "name": "Alex",
         "gender": "Hombre",
         "tags": ["alex_(banana_fish)"],
         "value": 100
       },
       {
-        "id": "12",
+        "id": "900000342",
         "name": "Sun",
         "gender": "Hombre",
         "tags": ["sun_(banana_fish)"],
@@ -20614,84 +20615,84 @@
     "name": "Bastard!! Ankoku no Hakaishin",
     "characters": [
       {
-        "id": "1",
+        "id": "900000343",
         "name": "Dark Schneider",
         "gender": "Hombre",
         "tags": ["dark_schneider"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000344",
         "name": "Yoko Amano",
         "gender": "Mujer",
         "tags": ["yoko_amano"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000345",
         "name": "Lars Ul Metallicana",
         "gender": "Hombre",
         "tags": ["lars_ul_metallicana"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000346",
         "name": "Abigail",
         "gender": "Hombre",
         "tags": ["abigail_(bastard!!)"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000347",
         "name": "Kai Harn",
         "gender": "Hombre",
         "tags": ["kai_harn"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000348",
         "name": "Sheila Tuel Meta Licana",
         "gender": "Mujer",
         "tags": ["sheila_tuel_meta_licana"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000349",
         "name": "Arshes Nei",
         "gender": "Mujer",
         "tags": ["arshes_nei"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000350",
         "name": "Di-Amon",
         "gender": "Hombre",
         "tags": ["di-amon"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000351",
         "name": "Gara",
         "gender": "Hombre",
         "tags": ["gara_(bastard!!)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000352",
         "name": "Porno",
         "gender": "Hombre",
         "tags": ["porno_(bastard!!)"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000353",
         "name": "Ninja Master Gara",
         "gender": "Hombre",
         "tags": ["ninja_master_gara"],
         "value": 100
       },
       {
-        "id": "12",
+        "id": "900000354",
         "name": "Sean Ari",
         "gender": "Hombre",
         "tags": ["sean_ari"],
@@ -20707,77 +20708,77 @@
     "name": "B: The Beginning",
     "characters": [
       {
-        "id": "1",
+        "id": "900000355",
         "name": "Keith Kazama Flick",
         "gender": "Hombre",
         "tags": ["keith_kazama_flick"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000356",
         "name": "Koku",
         "gender": "Hombre",
         "tags": ["koku_(b:_the_beginning)"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000357",
         "name": "Lily Hoshina",
         "gender": "Mujer",
         "tags": ["lily_hoshina"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000358",
         "name": "Yuna",
         "gender": "Mujer",
         "tags": ["yuna_(b:_the_beginning)"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000359",
         "name": "Gilbert Ross",
         "gender": "Hombre",
         "tags": ["gilbert_ross"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000360",
         "name": "Boris Meier",
         "gender": "Hombre",
         "tags": ["boris_meier"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000361",
         "name": "Kazuki",
         "gender": "Hombre",
         "tags": ["kazuki_(b:_the_beginning)"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000362",
         "name": "Kaelin",
         "gender": "Mujer",
         "tags": ["kaelin_(b:_the_beginning)"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000363",
         "name": "Eric Toga",
         "gender": "Hombre",
         "tags": ["eric_toga"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000364",
         "name": "Minatsuki",
         "gender": "Mujer",
         "tags": ["minatsuki_(b:_the_beginning)"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000365",
         "name": "Izuku",
         "gender": "Mujer",
         "tags": ["izuku_(b:_the_beginning)"],
@@ -20789,42 +20790,42 @@
     "name": "Black Fox",
     "characters": [
       {
-        "id": "1",
+        "id": "900000366",
         "name": "Rikka Isurugi",
         "gender": "Mujer",
         "tags": ["rikka_isurugi"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000367",
         "name": "Mia",
         "gender": "Mujer",
         "tags": ["mia_(black_fox)"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000368",
         "name": "Melissa",
         "gender": "Mujer",
         "tags": ["melissa_(black_fox)"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000369",
         "name": "Hyoe",
         "gender": "Hombre",
         "tags": ["hyoe_(black_fox)"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000370",
         "name": "Allen",
         "gender": "Hombre",
         "tags": ["allen_(black_fox)"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000371",
         "name": "Rikka's Father",
         "gender": "Hombre",
         "tags": ["rikka's_father"],
@@ -20836,77 +20837,77 @@
     "name": "Blood-C",
     "characters": [
       {
-        "id": "1",
+        "id": "900000372",
         "name": "Saya Kisaragi",
         "gender": "Mujer",
         "tags": ["saya_kisaragi"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000373",
         "name": "Fumito Nanahara",
         "gender": "Hombre",
         "tags": ["fumito_nanahara"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000374",
         "name": "Shinichirou Tokizane",
         "gender": "Hombre",
         "tags": ["shinichirou_tokizane"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000375",
         "name": "Itsuki Tomofusa",
         "gender": "Hombre",
         "tags": ["itsuki_tomofusa"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000376",
         "name": "Kanako Tsutsutori",
         "gender": "Mujer",
         "tags": ["kanako_tsutsutori"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000377",
         "name": "Haruno Nonomiya",
         "gender": "Mujer",
         "tags": ["haruno_nonomiya"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000378",
         "name": "Yoriko Anno",
         "gender": "Mujer",
         "tags": ["yoriko_anno"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000379",
         "name": "Nene",
         "gender": "Mujer",
         "tags": ["nene_(blood-c)"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000380",
         "name": "Moto",
         "gender": "Hombre",
         "tags": ["moto_(blood-c)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000381",
         "name": "Sakutairou",
         "gender": "Hombre",
         "tags": ["sakutairou"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000382",
         "name": "Watanabe",
         "gender": "Hombre",
         "tags": ["watanabe_(blood-c)"],
@@ -20918,119 +20919,119 @@
     "name": "Beastars",
     "characters": [
       {
-        "id": "1",
+        "id": "900000383",
         "name": "Legoshi",
         "gender": "Hombre",
         "tags": ["legoshi"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000384",
         "name": "Haru",
         "gender": "Mujer",
         "tags": ["haru_(beastars)"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000385",
         "name": "Louis",
         "gender": "Hombre",
         "tags": ["louis_(beastars)"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000386",
         "name": "Juno",
         "gender": "Mujer",
         "tags": ["juno_(beastars)"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000387",
         "name": "Jack",
         "gender": "Hombre",
         "tags": ["jack_(beastars)"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000388",
         "name": "Gosha",
         "gender": "Hombre",
         "tags": ["gosha_(beastars)"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000389",
         "name": "Pina",
         "gender": "Hombre",
         "tags": ["pina_(beastars)"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000390",
         "name": "Riz",
         "gender": "Hombre",
         "tags": ["riz_(beastars)"],
         "value": 100
       },
       {
-        "id": "9",
+        "id": "900000391",
         "name": "Bill",
         "gender": "Hombre",
         "tags": ["bill_(beastars)"],
         "value": 100
       },
       {
-        "id": "10",
+        "id": "900000392",
         "name": "Els",
         "gender": "Mujer",
         "tags": ["els_(beastars)"],
         "value": 100
       },
       {
-        "id": "11",
+        "id": "900000393",
         "name": "Domingo",
         "gender": "Hombre",
         "tags": ["domingo_(beastars)"],
         "value": 100
       },
       {
-        "id": "12",
+        "id": "900000394",
         "name": "Kibi",
         "gender": "Hombre",
         "tags": ["kibi_(beastars)"],
         "value": 100
       },
       {
-        "id": "13",
+        "id": "900000395",
         "name": "Sheila",
         "gender": "Mujer",
         "tags": ["sheila_(beastars)"],
         "value": 100
       },
       {
-        "id": "14",
+        "id": "900000396",
         "name": "Sagwan",
         "gender": "Hombre",
         "tags": ["sagwan_(beastars)"],
         "value": 100
       },
       {
-        "id": "15",
+        "id": "900000397",
         "name": "San",
         "gender": "Mujer",
         "tags": ["san_(beastars)"],
         "value": 100
       },
       {
-        "id": "16",
+        "id": "900000398",
         "name": "Yahya",
         "gender": "Hombre",
         "tags": ["yahya_(beastars)"],
         "value": 100
       },
       {
-        "id": "17",
+        "id": "900000399",
         "name": "Melon",
         "gender": "Hombre",
         "tags": ["melon_(beastars)"],
@@ -21042,56 +21043,56 @@
     "name": "Blue Spring Ride",
     "characters": [
       {
-        "id": "1",
+        "id": "900000400",
         "name": "Futaba Yoshioka",
         "gender": "Mujer",
         "tags": ["futaba_yoshioka"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000401",
         "name": "Kou Mabuchi",
         "gender": "Hombre",
         "tags": ["kou_mabuchi"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000402",
         "name": "Yuri Makita",
         "gender": "Mujer",
         "tags": ["yuri_makita"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000403",
         "name": "Shuko Murao",
         "gender": "Mujer",
         "tags": ["shuko_murao"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000404",
         "name": "Aya Kominato",
         "gender": "Hombre",
         "tags": ["aya_kominato"],
         "value": 100
       },
       {
-        "id": "6",
+        "id": "900000405",
         "name": "Yoichi Tanaka",
         "gender": "Hombre",
         "tags": ["yoichi_tanaka"],
         "value": 100
       },
       {
-        "id": "7",
+        "id": "900000406",
         "name": "Narumi",
         "gender": "Mujer",
         "tags": ["narumi_(ao_haru_ride)"],
         "value": 100
       },
       {
-        "id": "8",
+        "id": "900000407",
         "name": "Kominato's Sister",
         "gender": "Mujer",
         "tags": ["kominato's_sister"],
@@ -21115,35 +21116,35 @@
     "name": "Adolf ni tsugu",
     "characters": [
       {
-        "id": "900000037",
+        "id": "900000408",
         "name": "Adolf Kamil",
         "gender": "Hombre",
         "tags": ["adolf_kamil"],
         "value": 100
       },
       {
-        "id": "2",
+        "id": "900000409",
         "name": "Adolf Kaufmann",
         "gender": "Hombre",
         "tags": ["adolf_kaufmann"],
         "value": 100
       },
       {
-        "id": "3",
+        "id": "900000410",
         "name": "Adolf Hitler",
         "gender": "Hombre",
         "tags": ["adolf_hitler_(adolf_ni_tsugu)"],
         "value": 100
       },
       {
-        "id": "4",
+        "id": "900000411",
         "name": "Sohei Toge",
         "gender": "Hombre",
         "tags": ["sohei_toge"],
         "value": 100
       },
       {
-        "id": "5",
+        "id": "900000412",
         "name": "Kauffman",
         "gender": "Hombre",
         "tags": ["kauffman_(adolf_ni_tsugu)"],
