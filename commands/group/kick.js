@@ -11,11 +11,7 @@ export default {
     const groupInfo = await client.groupMetadata(m.chat)
     const ownerGroup = groupInfo.owner || m.chat.split`-`[0] + '@s.whatsapp.net'
     const ownerBot = global.owner[0][0] + '@s.whatsapp.net'
-
-    const participant = groupInfo.participants.find((p) => 
-      (p.id || p.jid || p.phoneNumber || '').includes(user.split('@')[0])
-    )
-
+    const participant = groupInfo.participants.find((p) => p.phoneNumber === user || p.jid === user || p.id === user || p.lid === user)
     if (!participant) {
       return client.reply(m.chat, `《✧》 *@${user.split('@')[0]}* ya no está en el grupo.`, m, { mentions: [user] })
     }
@@ -35,4 +31,4 @@ export default {
       return m.reply(`> An unexpected error occurred while executing command *${usedPrefix + command}*. Please try again or contact support if the issue persists.\n> [Error: *${e.message}*]`)
     }
   },
-}
+};
