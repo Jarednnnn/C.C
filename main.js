@@ -10,7 +10,7 @@ import antilink from './commands/antilink.js';
 import level from './commands/level.js';
 import { getGroupAdmins } from './lib/message.js';
 
-seeCommands();
+seeCommands()
 
 export default async (client, m) => {
 if (!m.message) return
@@ -82,16 +82,10 @@ let participants = []
 let groupAdmins = []
 let groupName = ''
 if (m.isGroup) {
-// Obtener metadata con manejo de error
 groupMetadata = await client.groupMetadata(m.chat).catch(() => null)
-if (groupMetadata) {
-groupName = groupMetadata.subject || ''
-participants = groupMetadata.participants || []
-// Filtrar admins
-groupAdmins = participants.filter(p => p.admin === 'admin' || p.admin === 'superadmin')
-} else {
-console.error(`No se pudo obtener metadata del grupo: ${m.chat}`)
-}
+groupName = groupMetadata?.subject || ''
+participants = groupMetadata?.participants || []
+groupAdmins = participants.filter(p => (p.admin === 'admin' || p.admin === 'superadmin'))
 }
 const isBotAdmins = m.isGroup ? groupAdmins.some(p => client.decodeJid(p.id || p.jid || '') === botJid) : false
 const isAdmins = m.isGroup ? groupAdmins.some(p => client.decodeJid(p.id || p.jid || '') === sender) : false
@@ -170,9 +164,8 @@ if (cmdData.isOwner && !global.owner.map(num => num + '@s.whatsapp.net').include
 if (settings.prefix === true) return
 return m.reply(`ꕤ El comando *${command}* no existe.\n✎ Usa *${usedPrefix}help* para ver la lista de comandos disponibles.`)
 }
-// CORRECCIÓN: Usar global.mess y verificar admins correctamente
-if (cmdData.isAdmin && !isAdmins) return client.reply(m.chat, global.mess.admin, m)
-if (cmdData.botAdmin && !isBotAdmins) return client.reply(m.chat, global.mess.botAdmin, m)
+if (cmdData.isAdmin && !isAdmins) return client.reply(m.chat, mess.admin, m)
+if (cmdData.botAdmin && !isBotAdmins) return client.reply(m.chat, mess.botAdmin, m)
 try {
 await client.readMessages([m.key])
 user.usedcommands = (user.usedcommands || 0) + 1
@@ -187,5 +180,4 @@ await cmdData.run(client, m, args, usedPrefix, command, text)
 await client.sendMessage(m.chat, { text: `《✧》 Error al ejecutar el comando\n${error}` }, { quoted: m })
 }
 level(m)
-}
 }
