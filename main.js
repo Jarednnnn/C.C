@@ -10,7 +10,7 @@ import initDB from './lib/system/initDB.js';
 import antilink from './commands/antilink.js';
 import level from './commands/level.js';
 import { getGroupAdmins } from './lib/message.js';
-import { resolveLidToRealJid } from './lib/utils.js'; // <-- AÑADIR
+import { resolveLidToRealJid } from './lib/utils.js'; // 👈 Importamos la función
 
 seeCommands();
 
@@ -109,53 +109,45 @@ export default async (client, m) => {
 
   console.log(`📨 Comando detectado: ${command} de ${sender} en ${m.isGroup ? 'grupo' : 'privado'}`);
 
-  // --- OBTENER METADATA DEL GRUPO CON REINTENTO Y RESOLUCIÓN DE LIDS ---
+  // --- OBTENER METADATA DEL GRUPO (si es grupo) ---
   let groupMetadata = null;
   let participants = [];
   let groupAdmins = [];
+  let groupAdminsReal = []; // Para almacenar JIDs reales
   let groupName = '';
   if (m.isGroup) {
-    let attempts = 0;
-    while (attempts < 2) {
-      try {
-        groupMetadata = await client.groupMetadata(m.chat);
-        break;
-      } catch (err) {
-        attempts++;
-        console.error(`Intento ${attempts} falló:`, err.message);
-        if (attempts === 2) {
-          console.error('Error definitivo al obtener metadata:', err);
-          groupMetadata = null;
-        }
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-    }
-    if (groupMetadata) {
-      groupName = groupMetadata.subject || '';
-      participants = groupMetadata.participants || [];
-      // Obtener admins (pueden ser LIDs)
-      const rawAdmins = participants
+    try {
+      groupMetadata = await client.groupMetadata(m.chat);
+      groupName = groupMetadata?.subject || '';
+      participants = groupMetadata?.participants || [];
+      groupAdmins = participants
         .filter(p => p.admin === 'admin' || p.admin === 'superadmin')
         .map(p => p.id || p.jid || '')
         .filter(Boolean);
-      
-      // Resolver LIDs a JIDs reales
-      groupAdmins = [];
-      for (const adminId of rawAdmins) {
-        if (adminId.endsWith('@lid')) {
-          try {
-            const realJid = await resolveLidToRealJid(adminId, client, m.chat);
-            if (realJid) groupAdmins.push(realJid);
-          } catch (e) {
-            console.error('Error resolviendo LID:', e);
-          }
-        } else {
-          groupAdmins.push(adminId);
-        }
+      console.log(`👥 Grupo: ${groupName}, participantes: ${participants.length}, admins (raw): ${groupAdmins.length}`);
+
+      // 🔁 Resolver LIDs a JIDs reales
+      if (groupAdmins.length > 0) {
+        groupAdminsReal = await Promise.all(
+          groupAdmins.map(async (lid) => {
+            try {
+              return await resolveLidToRealJid(lid, client, m.chat);
+            } catch {
+              return lid; // Si falla, dejamos el original
+            }
+          })
+        );
+      } else {
+        groupAdminsReal = [];
       }
-      console.log(`👥 Grupo: ${groupName}, participantes: ${participants.length}, admins: ${groupAdmins.length}`);
+    } catch (err) {
+      console.error('Error al obtener metadata del grupo:', err);
     }
   }
+
+  // --- VERIFICAR ADMIN CON JIDs REALES ---
+  const isAdmins = m.isGroup ? groupAdminsReal.some(admin => areJidsSameUser(admin, sender)) : false;
+  const isBotAdmins = m.isGroup ? groupAdminsReal.some(admin => areJidsSameUser(admin, botJid)) : false;
 
   // --- DEPURACIÓN TEMPRANA PARA COMANDOS DE ADMIN ---
   const cmdData = global.comandos.get(command);
@@ -164,10 +156,10 @@ export default async (client, m) => {
     const debugMsg = `🔍 DEBUG ADMIN (${command})\n` +
       `Sender: ${sender}\n` +
       `BotJid: ${botJid}\n` +
-      `Admins raw (LIDs): ${JSON.stringify(participants.filter(p => p.admin).map(p => p.id))}\n` +
-      `Admins resueltos: ${JSON.stringify(groupAdmins)}\n` +
-      `isAdmins: ${groupAdmins.some(admin => areJidsSameUser(admin, sender))}\n` +
-      `isBotAdmins: ${groupAdmins.some(admin => areJidsSameUser(admin, botJid))}\n` +
+      `Admins raw (LIDs): ${JSON.stringify(groupAdmins)}\n` +
+      `Admins reales (resueltos): ${JSON.stringify(groupAdminsReal)}\n` +
+      `isAdmins: ${isAdmins}\n` +
+      `isBotAdmins: ${isBotAdmins}\n` +
       `Metadata obtenida: ${groupMetadata ? 'sí' : 'no'}\n` +
       `Participantes: ${participants.length}\n` +
       `Chat: ${m.chat}\n` +
@@ -176,7 +168,7 @@ export default async (client, m) => {
     console.log('📤 Debug enviado al owner');
   }
 
-  // --- CONTINUAR CON EL RESTO DEL HANDLER (sin cambios) ---
+  // --- CONTINUAR CON EL RESTO DEL HANDLER ---
   initDB(m, client);
   antilink(client, m);
 
@@ -211,13 +203,11 @@ export default async (client, m) => {
   }
 
   const pushname = m.pushName || 'Sin nombre';
-  const isAdmins = m.isGroup ? groupAdmins.some(admin => areJidsSameUser(admin, sender)) : false;
-  const isBotAdmins = m.isGroup ? groupAdmins.some(admin => areJidsSameUser(admin, botJid)) : false;
 
   const chatData = global.db.data.chats[from];
   const consolePrimary = chatData?.primaryBot;
 
-  // --- LÓGICA DE PRIMARY BOT ---
+  // --- LÓGICA DE PRIMARY BOT (corregida) ---
   if (consolePrimary && consolePrimary !== botJid) {
     const hasPrefix = settings.prefix === true
       ? true
