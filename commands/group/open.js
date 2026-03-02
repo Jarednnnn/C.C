@@ -1,8 +1,8 @@
 export default {
   command: ['open', 'abrir'],
   category: 'grupo',
-  isAdmin: true,
-  botAdmin: true,
+  isAdmin: false,
+  botAdmin: false,
   run: async (client, m, args, usedPrefix, command) => {
     try {
       const timeout = args[0] ? msParser(args[0]) : 0
