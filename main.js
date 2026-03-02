@@ -126,47 +126,26 @@ export default async (client, m) => {
   let groupAdmins = [];
   let groupName = '';
 
+  // --- INICIO DE LA CORRECCIÓN: DETECCIÓN DE ADMINISTRADORES ---
   if (m.isGroup) {
     try {
       groupMetadata = await client.groupMetadata(m.chat);
       groupName = groupMetadata?.subject || '';
       participants = groupMetadata?.participants || [];
-      groupAdmins = participants.filter(
-        (p) => p.admin === 'admin' || p.admin === 'superadmin'
-      );
-      console.log('✅ Metadata obtenida:', {
-        grupo: groupName,
-        totalParticipantes: participants.length,
-        admins: groupAdmins.map((p) => client.decodeJid(p.id || p.jid || '')),
-      });
+      // Extraer solo los JIDs de los participantes (ya decodificados)
+      const participantJids = participants.map(p => client.decodeJid(p.id || p.jid || ''));
+      // Usar la función getGroupAdmins importada para obtener los JIDs de los admins
+      groupAdmins = getGroupAdmins(participants.map(p => ({ id: p.id || p.jid, admin: p.admin }))) || [];
     } catch (err) {
-      console.error('❌ Error al obtener metadata del grupo:', err);
+      console.error('Error al obtener metadata del grupo:', err);
     }
   }
 
-  const isBotAdmins = m.isGroup
-    ? groupAdmins.some(
-        (p) => client.decodeJid(p.id || p.jid || '') === botJid
-      ) || false
-    : false;
-  const isAdmins = m.isGroup
-    ? groupAdmins.some(
-        (p) => client.decodeJid(p.id || p.jid || '') === sender
-      ) || false
-    : false;
-
-  // Log para depuración
-  if (m.isGroup) {
-    console.log('🔍 Verificación de administradores:', {
-      sender,
-      isAdmins,
-      botJid,
-      isBotAdmins,
-      adminsEncontrados: groupAdmins.map((p) =>
-        client.decodeJid(p.id || p.jid || '')
-      ),
-    });
-  }
+  // Decodificar sender y botJid para comparación
+  const decodedSender = client.decodeJid(sender);
+  const isAdmins = m.isGroup ? groupAdmins.includes(decodedSender) : false;
+  const isBotAdmins = m.isGroup ? groupAdmins.includes(botJid) : false;
+  // --- FIN DE LA CORRECCIÓN ---
 
   const chatData = global.db.data.chats[from];
   const consolePrimary = chatData?.primaryBot;
