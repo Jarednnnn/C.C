@@ -88,34 +88,42 @@ const botNum = extractNumber(botJid)
 let groupMetadata = null
 let groupAdmins = []
 let groupName = ''
+let allParticipants = []
 if (m.isGroup) {
 groupMetadata = await client.groupMetadata(m.chat).catch(() => null)
 groupName = groupMetadata?.subject || ''
-// ✅ Guardamos todos los participantes con rol admin o superadmin
-groupAdmins = groupMetadata?.participants.filter(p => p.admin === 'admin' || p.admin === 'superadmin') || []
+allParticipants = groupMetadata?.participants || []
+groupAdmins = allParticipants.filter(p => p.admin === 'admin' || p.admin === 'superadmin')
 }
 
-// ✅ Comparación robusta: funciona con JIDs normales Y con LIDs
-const isBotAdmins = m.isGroup
-  ? groupAdmins.some(p =>
-      extractNumber(p.id) === botNum ||
-      extractNumber(p.lid) === botNum
-    )
+// ✅ Busca el participante que coincida por JID o LID, luego verifica si es admin
+const findParticipant = (identifier) => {
+  const num = extractNumber(identifier)
+  return allParticipants.find(p =>
+    extractNumber(p.id) === num ||
+    extractNumber(p.lid) === num ||
+    // También busca el JID dentro de los admins LID comparando el objeto completo
+    p.id === identifier ||
+    p.lid === identifier
+  )
+}
+
+// Busca el participante del sender y el bot en la lista completa
+const senderParticipant = findParticipant(sender)
+const botParticipant = findParticipant(botJid)
+
+// Verifica si ese participante está en la lista de admins
+const isAdmins = m.isGroup
+  ? senderParticipant?.admin === 'admin' || senderParticipant?.admin === 'superadmin'
   : false
 
-const isAdmins = m.isGroup
-  ? groupAdmins.some(p =>
-      extractNumber(p.id) === senderNum ||
-      extractNumber(p.lid) === senderNum
-    )
+const isBotAdmins = m.isGroup
+  ? botParticipant?.admin === 'admin' || botParticipant?.admin === 'superadmin'
   : false
 
 // ✅ También expone si el sender es superadmin (dueño del grupo)
 const isSuperAdmin = m.isGroup
-  ? groupAdmins.some(p =>
-      (extractNumber(p.id) === senderNum || extractNumber(p.lid) === senderNum) &&
-      p.admin === 'superadmin'
-    )
+  ? senderParticipant?.admin === 'superadmin'
   : false
 
 const chatData = global.db.data.chats[from]
