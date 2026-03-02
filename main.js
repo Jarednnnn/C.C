@@ -14,7 +14,7 @@ seeCommands()
 
 export default async (client, m) => {
 if (!m.message) return
-const sender = m.sender 
+const sender = client.decodeJid(m.sender || '')
 let body = m.message.conversation || m.message.extendedTextMessage?.text || m.message.imageMessage?.caption || m.message.videoMessage?.caption || m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectReply?.selectedRowId || m.message.templateButtonReplyMessage?.selectedId || ''
 
 initDB(m, client)
@@ -30,7 +30,7 @@ console.error(`Error en plugin.all -> ${name}`, err)
 }}}
   
 const from = m.key.remoteJid
-const botJid = client.user.id.split(':')[0] + '@s.whatsapp.net' || client.user.lid
+const botJid = client.decodeJid(client.user.id)
 const chat = global.db.data.chats[m.chat] || {}
 const settings = global.db.data.settings[botJid] || {}  
 const user = global.db.data.users[sender] ||= {}
@@ -78,19 +78,21 @@ let text = args.join(' ')
 
 const pushname = m.pushName || 'Sin nombre'
 let groupMetadata = null
+let participants = []
 let groupAdmins = []
 let groupName = ''
 if (m.isGroup) {
 groupMetadata = await client.groupMetadata(m.chat).catch(() => null)
 groupName = groupMetadata?.subject || ''
-groupAdmins = groupMetadata?.participants.filter(p => (p.admin === 'admin' || p.admin === 'superadmin')) || []
+participants = groupMetadata?.participants || []
+groupAdmins = participants.filter(p => (p.admin === 'admin' || p.admin === 'superadmin'))
 }
-const isBotAdmins = m.isGroup ? groupAdmins.some(p => p.phoneNumber === botJid || p.jid === botJid || p.id === botJid || p.lid === botJid ) : false
-const isAdmins = m.isGroup ? groupAdmins.some(p => p.phoneNumber === sender || p.jid === sender || p.id === sender || p.lid === sender ) : false
+const isBotAdmins = m.isGroup ? groupAdmins.some(p => client.decodeJid(p.id || p.jid || '') === botJid) : false
+const isAdmins = m.isGroup ? groupAdmins.some(p => client.decodeJid(p.id || p.jid || '') === sender) : false
 
 const chatData = global.db.data.chats[from]
 const consolePrimary = chatData.primaryBot
-if (!consolePrimary || consolePrimary === client.user.id.split(':')[0] + '@s.whatsapp.net') {
+if (!consolePrimary || consolePrimary === botJid) {
 const h = chalk.bold.blue('╭────────────────────────────···')
 const t = chalk.bold.blue('╰────────────────────────────···')
 const v = chalk.bold.blue('│')
