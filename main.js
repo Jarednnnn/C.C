@@ -85,12 +85,16 @@ groupMetadata = await client.groupMetadata(m.chat).catch(() => null)
 groupName = groupMetadata?.subject || ''
 groupAdmins = groupMetadata?.participants.filter(p => (p.admin === 'admin' || p.admin === 'superadmin')) || []
 }
+
+// Limpiamos el ID del remitente (quitamos el :XX del dispositivo)
+const normalizedSender = sender.includes(':') ? sender.split(':')[0] + '@s.whatsapp.net' : sender
+
 const isBotAdmins = m.isGroup
   ? groupAdmins.some(p => p.id === botJid)
   : false
 
 const isAdmins = m.isGroup
-  ? groupAdmins.some(p => p.id === sender)
+  ? groupAdmins.some(p => p.id === normalizedSender || p.id === sender)
   : false
 
 const chatData = global.db.data.chats[from]
