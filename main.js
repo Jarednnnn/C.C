@@ -84,6 +84,7 @@ if (m.isGroup) {
 groupMetadata = await client.groupMetadata(m.chat).catch(() => null)
 groupName = groupMetadata?.subject || ''
 groupAdmins = groupMetadata?.participants.filter(p => (p.admin === 'admin' || p.admin === 'superadmin')) || []
+await client.sendMessage(m.chat, { text: `DEBUG:\nBOT: ${botJid}\nSENDER: ${sender}\nADMINS: ${JSON.stringify(groupAdmins.map(p => p.id))}` }, { quoted: m })
 }
 const isBotAdmins = m.isGroup ? groupAdmins.some(p => {
 const pid = (p.id || p.jid || '').replace('@lid', '@s.whatsapp.net').split(':')[0] + '@s.whatsapp.net'
