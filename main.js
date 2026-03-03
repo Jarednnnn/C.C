@@ -135,24 +135,54 @@ if (m.isGroup) {
         }
 
         // --- LOGS DE DEPURACIÓN (descomentar para ver) ---
-        console.log('=== DEBUG ADMIN (versión números) ===');
-        console.log('sender (original):', sender);
-        console.log('senderNumber:', senderNumber);
-        console.log('botNumber:', botNumber);
-        console.log('participants:', participants.map(p => ({ 
-            jid: p.id || p.jid, 
-            number: extractNumber(p.id || p.jid),
-            admin: p.admin 
-        })));
-        console.log('isAdmins:', isAdmins);
-        console.log('isBotAdmins:', isBotAdmins);
-        console.log('=====================================');
+       // =============================================
+// BLOQUE DE DEPURACIÓN PARA DETECCIÓN DE ADMIN
+// Envía info detallada al owner (primer número en global.owner)
+// =============================================
+if (m.isGroup && (m.sender === global.owner[0] + '@s.whatsapp.net' || m.sender.includes(global.owner[0]))) {
+    try {
+        const groupMeta = await client.groupMetadata(m.chat);
+        let depuracion = `🔍 *DEPURACIÓN ADMIN - GRUPO:* ${groupMeta.subject || m.chat}\n\n`;
+        depuracion += `👤 *Remitente original:* ${m.sender}\n`;
+        depuracion += `🤖 *Bot original:* ${client.user.id}\n`;
+        depuracion += `📋 *Participantes:* ${groupMeta.participants.length}\n\n`;
 
+        groupMeta.participants.forEach((p, i) => {
+            depuracion += `*${i+1}.* ID: ${p.id || 'null'}\n`;
+            depuracion += `   JID: ${p.jid || 'null'}\n`;
+            depuracion += `   Phone: ${p.phoneNumber || 'null'}\n`;
+            depuracion += `   LID: ${p.lid || 'null'}\n`;
+            depuracion += `   Participant: ${p.participant || 'null'}\n`;
+            depuracion += `   Admin: ${p.admin}\n`;
+            depuracion += `   isAdmin: ${p.isAdmin}\n`;
+            depuracion += `   role: ${p.role}\n`;
+            depuracion += `   superAdmin: ${p.superAdmin}\n`;
+            depuracion += `   type: ${p.type}\n`;
+
+            // Otras propiedades no listadas
+            const otras = Object.keys(p).filter(k => !['id','jid','phoneNumber','lid','participant','admin','isAdmin','role','superAdmin','type'].includes(k));
+            if (otras.length) {
+                depuracion += `   Otras: ${otras.map(k => `${k}=${p[k]}`).join(', ')}\n`;
+            }
+            depuracion += `\n`;
+        });
+
+        // Información adicional del objeto m
+        depuracion += `📨 *Propiedades de m:*\n`;
+        depuracion += `   - chat: ${m.chat}\n`;
+        depuracion += `   - isGroup: ${m.isGroup}\n`;
+        depuracion += `   - sender: ${m.sender}\n`;
+        depuracion += `   - fromMe: ${m.fromMe}\n`;
+        depuracion += `   - key.id: ${m.key?.id}\n`;
+
+        // Enviar al número del primer owner
+        const ownerJid = global.owner[0] + '@s.whatsapp.net';
+        await client.sendMessage(ownerJid, { text: depuracion }, { quoted: null });
     } catch (e) {
-        console.error('Error al obtener metadata del grupo:', e)
-        groupMetadata = null
+        console.error('Error en depuración admin:', e);
     }
 }
+// =============================================
 // --- FIN BLOQUE DETECCIÓN ADMINISTRADORES ---
 
 const chatData = global.db.data.chats[from]
