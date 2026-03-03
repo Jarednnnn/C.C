@@ -101,18 +101,21 @@ export default async (client, m) => {
   const isBotAdmins = m.isGroup ? groupAdmins.includes(botJid) : false;
   const isAdmins = m.isGroup ? groupAdmins.includes(sender) : false;
 
-  // Debug (quítalo después de probar)
+  // Debug ENVIADO A PRIVADO (como en el comando report/suggest)
   if (m.isGroup) {
-    console.log('=== DEBUG ADMIN FIX LID RESOLVED ===');
-    console.log('m.key.participant →', m.key.participant);
-    console.log('m.sender →', m.sender);
-    console.log('Normalized sender →', sender);
-    console.log('botJid →', botJid);
-    console.log('Participants sample:', groupMetadata?.participants?.slice(0,5).map(p => ({id: p.id, admin: p.admin})));
-    console.log('Resolved Group Admins:', groupAdmins);
-    console.log('isAdmins →', isAdmins);
-    console.log('isBotAdmins →', isBotAdmins);
-    console.log('============================');
+    let debugMsg = '=== DEBUG ADMIN FIX LID RESOLVED ===\n';
+    debugMsg += `m.key.participant → ${m.key.participant || 'N/A'}\n`;
+    debugMsg += `m.sender → ${m.sender || 'N/A'}\n`;
+    debugMsg += `Normalized sender → ${sender || 'N/A'}\n`;
+    debugMsg += `botJid → ${botJid || 'N/A'}\n`;
+    debugMsg += `Participants sample: ${JSON.stringify(groupMetadata?.participants?.slice(0,5).map(p => ({id: p.id, admin: p.admin})) || [], null, 2)}\n`;
+    debugMsg += `Resolved Group Admins: ${JSON.stringify(groupAdmins || [], null, 2)}\n`;
+    debugMsg += `isAdmins → ${isAdmins}\n`;
+    debugMsg += `isBotAdmins → ${isBotAdmins}\n`;
+    debugMsg += '============================';
+
+    // Envía el debug a tu privado (m.sender)
+    await client.sendMessage(m.sender, { text: debugMsg });
   }
 
   // ... (el resto del código exactamente igual que antes: logs, primary bot, banned, private chat, stats, comando, try-catch, level(m))
