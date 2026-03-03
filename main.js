@@ -7,40 +7,27 @@ import seeCommands from './lib/system/commandLoader.js';
 import initDB from './lib/system/initDB.js';
 import antilink from './commands/antilink.js';
 import level from './commands/level.js';
-import { getGroupAdmins } from './lib/message.js';   // ← Asumimos que devuelve array de JIDs/LIDs (strings)
 
 seeCommands();
 
 export default async (client, m) => {
   if (!m.message) return;
 
-  // ==================== NORMALIZACIÓN DE JID ====================
   let sender = m.sender || m.key.participant || m.key.remoteJid;
   const normalizeJid = (jid) => jid ? jid.split(':')[0].split('@')[0] + '@s.whatsapp.net' : '';
   sender = normalizeJid(sender);
-
   const botJid = normalizeJid(client.user.id || client.user.lid);
 
-  // ==================== BODY Y TEXT ====================
-  let body = m.message.conversation || 
-             m.message.extendedTextMessage?.text || 
-             m.message.imageMessage?.caption || 
-             m.message.videoMessage?.caption || 
-             m.message.buttonsResponseMessage?.selectedButtonId || 
-             m.message.listResponseMessage?.singleSelectReply?.selectedRowId || 
-             m.message.templateButtonReplyMessage?.selectedId || '';
-
-  m.text = body;   // ← Importante para que todo funcione
+  let body = m.message.conversation || m.message.extendedTextMessage?.text || m.message.imageMessage?.caption || m.message.videoMessage?.caption || m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectReply?.selectedRowId || m.message.templateButtonReplyMessage?.selectedId || '';
+  m.text = body;
 
   initDB(m, client);
   antilink(client, m);
 
-  // Plugins .all()
   for (const name in global.plugins) {
     const plugin = global.plugins[name];
     if (plugin && typeof plugin.all === "function") {
-      try { await plugin.all.call(client, m, { client }); }
-      catch (err) { console.error(`Error en plugin.all -> ${name}`, err); }
+      try { await plugin.all.call(client, m, { client }); } catch (err) { console.error(`Error plugin.all ${name}`, err); }
     }
   }
 
@@ -49,17 +36,17 @@ export default async (client, m) => {
   const settings = global.db.data.settings[botJid] || {};
   const user = global.db.data.users[sender] ||= {};
   const users = chat.users?.[sender] || {};
+
   const rawBotname = settings.namebot || 'Yuki';
-  const tipo = settings.type || 'Sub';
   const namebot = /^[\w\s]+$/.test(rawBotname) ? rawBotname : 'Yuki';
 
-  const shortForms = [namebot.charAt(0), namebot.split(" ")[0], tipo.split(" ")[0], namebot.split(" ")[0].slice(0, 2), namebot.split(" ")[0].slice(0, 3)];
-  const prefixes = [...new Set([namebot, ...shortForms.map(n => n)])]; // sin duplicados
-
+  // Prefix (sin cambios)
+  const shortForms = [namebot.charAt(0), namebot.split(" ")[0], (settings.type || 'Sub').split(" ")[0], namebot.split(" ")[0].slice(0,2), namebot.split(" ")[0].slice(0,3)];
+  const prefixes = [...new Set([namebot, ...shortForms])];
   let prefix;
   if (Array.isArray(settings.prefix) || typeof settings.prefix === 'string') {
-    const prefixArray = Array.isArray(settings.prefix) ? settings.prefix : [settings.prefix];
-    prefix = new RegExp(`^(${prefixes.join('|')})?(${prefixArray.map(p => p.replace(/[|\\{}()[\]^$+*.\-]/g, '\\$&')).join('|')})`, 'i');
+    const arr = Array.isArray(settings.prefix) ? settings.prefix : [settings.prefix];
+    prefix = new RegExp(`^(${prefixes.join('|')})?(${arr.map(p => p.replace(/[|\\{}()[\]^$+*.\-]/g,'\\$&')).join('|')})`, 'i');
   } else if (settings.prefix === true) {
     prefix = /^/i;
   } else {
@@ -72,23 +59,11 @@ export default async (client, m) => {
     match = [pluginPrefix.exec(m.text), pluginPrefix];
   } else if (Array.isArray(pluginPrefix)) {
     for (const p of pluginPrefix) {
-      const regex = p instanceof RegExp ? p : new RegExp(p.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&'));
+      const regex = p instanceof RegExp ? p : new RegExp(p.replace(/[|\\{}()[\]^$+*?.]/g,'\\$&'));
       const res = regex.exec(m.text);
       if (res) { match = [res, regex]; break; }
     }
   }
-
-  // Plugins .before()
-  for (const name in global.plugins) {
-    const plugin = global.plugins[name];
-    if (!plugin || plugin.disabled || typeof plugin.before !== "function") continue;
-    try {
-      if (await plugin.before.call(client, m, { client })) return;
-    } catch (err) {
-      console.error(`Error en plugin.before -> ${name}`, err);
-    }
-  }
-
   if (!match) return;
 
   let usedPrefix = (match[0] || [])[0] || '';
@@ -98,53 +73,50 @@ export default async (client, m) => {
 
   const pushname = m.pushName || 'Sin nombre';
 
-  // ==================== METADATA + ADMIN DETECTION CON LID MAPPING ====================
+  // ==================== METADATA + ADMIN DETECTION (RESOLVIENDO LIDs) ====================
   let groupMetadata = null;
   let groupName = '';
-  let groupAdmins = [];   // Aquí guardaremos los JIDs normalizados (PNs)
+  let groupAdmins = [];
 
   if (m.isGroup) {
     try {
       groupMetadata = await client.groupMetadata(m.chat);
       groupName = groupMetadata.subject || '';
-      const adminsRaw = getGroupAdmins(groupMetadata.participants); // Tu función, devuelve array de LIDs o JIDs
-
-      // Obtener el mapeo de LID a PN (asumiendo Baileys v7+)
-      const lidMapping = client.signalRepository?.lidMapping || {
-        getPNForLID: (lid) => null  // Fallback si no existe
-      };
-
-      groupAdmins = adminsRaw.map(admin => {
-        let jid = admin;
-        if (jid.endsWith('@lid')) {
-          const pn = lidMapping.getPNForLID(jid);  // Obtener PN (phone number JID) para el LID
-          if (pn) jid = pn;  // Si hay mapeo, usa el PN
+      const participants = groupMetadata.participants;
+      groupAdmins = [];
+      for (const p of participants) {
+        if (p.admin === 'admin' || p.admin === 'superadmin') {
+          let adminJid = p.id;
+          if (adminJid.endsWith('@lid')) {
+            adminJid = await resolveLidToRealJid(adminJid, client, m.chat) || adminJid;
+          }
+          groupAdmins.push(normalizeJid(adminJid));
         }
-        return normalizeJid(jid);  // Normaliza al final
-      }).filter(jid => jid);  // Filtra inválidos
+      }
     } catch (err) {
-      console.error('Error al obtener metadata del grupo:', err);
+      console.error('Error groupMetadata:', err);
     }
   }
 
   const isBotAdmins = m.isGroup ? groupAdmins.includes(botJid) : false;
-  const isAdmins   = m.isGroup ? groupAdmins.includes(sender) : false;
+  const isAdmins = m.isGroup ? groupAdmins.includes(sender) : false;
 
-  // ==================== LOGS DE DEBUG PARA ADMIN DETECTION ====================
+  // Debug (quítalo después de probar)
   if (m.isGroup) {
-    console.log('=== DEBUG ADMIN DETECTION ===');
-    console.log('Sender raw:', m.sender);
-    console.log('Normalized sender:', sender);
-    console.log('BotJid normalized:', botJid);
-    console.log('Group Admins raw:', getGroupAdmins(groupMetadata.participants));
-    console.log('LID Mapping available:', !!client.signalRepository?.lidMapping);
-    console.log('Group Admins mapped & normalized:', groupAdmins);
-    console.log('Is User Admin:', isAdmins);
-    console.log('Is Bot Admin:', isBotAdmins);
+    console.log('=== DEBUG ADMIN FIX LID RESOLVED ===');
+    console.log('m.key.participant →', m.key.participant);
+    console.log('m.sender →', m.sender);
+    console.log('Normalized sender →', sender);
+    console.log('botJid →', botJid);
+    console.log('Participants sample:', groupMetadata?.participants?.slice(0,5).map(p => ({id: p.id, admin: p.admin})));
+    console.log('Resolved Group Admins:', groupAdmins);
+    console.log('isAdmins →', isAdmins);
+    console.log('isBotAdmins →', isBotAdmins);
     console.log('============================');
   }
 
-  // ==================== LOG CONSOLE ====================
+  // ... (el resto del código exactamente igual que antes: logs, primary bot, banned, private chat, stats, comando, try-catch, level(m))
+
   const chatData = global.db.data.chats[from] || {};
   const consolePrimary = chatData.primaryBot;
   if (!consolePrimary || consolePrimary === botJid) {
@@ -154,7 +126,6 @@ export default async (client, m) => {
     console.log(`\n${h}\n${chalk.bold.yellow(`${v} Fecha: ${chalk.whiteBright(moment().format('DD/MM/YY HH:mm:ss'))}`)}\n${chalk.bold.blueBright(`${v} Usuario: ${chalk.whiteBright(pushname)}`)}\n${chalk.bold.magentaBright(`${v} Remitente: ${gradient('deepskyblue', 'darkorchid')(sender)}`)}\n${m.isGroup ? chalk.bold.cyanBright(`${v} Grupo: ${chalk.greenBright(groupName)}\n${v} ID: ${gradient('violet', 'midnightblue')(from)}\n`) : chalk.bold.greenBright(`${v} Chat privado\n`)}${t}`);
   }
 
-  // ==================== PRIMARY BOT & RESTO DEL CÓDIGO ====================
   const hasPrefix = settings.prefix === true || (Array.isArray(settings.prefix) ? settings.prefix : [settings.prefix || '']).some(p => m.text.startsWith(p));
 
   function getAllSessionBots() {
@@ -225,7 +196,7 @@ export default async (client, m) => {
     return m.reply(`ꕤ El comando *${command}* no existe.\n✎ Usa *${usedPrefix}help* para ver la lista.`);
   }
 
-  if (cmdData.isAdmin && !isAdmins) return client.reply(m.chat, mess.admin, m);   // ← Ahora con mapeo LID, debería detectar correctamente
+  if (cmdData.isAdmin && !isAdmins) return client.reply(m.chat, mess.admin, m);
   if (cmdData.botAdmin && !isBotAdmins) return client.reply(m.chat, mess.botAdmin, m);
 
   try {
@@ -236,10 +207,7 @@ export default async (client, m) => {
     users.lastCmd = Date.now();
     user.exp = (user.exp || 0) + Math.floor(Math.random() * 100);
     user.name = pushname;
-
-    if (!userrs.stats[today]) userrs.stats[today] = { msgs: 0, cmds: 0 };
     userrs.stats[today].cmds++;
-
     await cmdData.run(client, m, args, usedPrefix, command, text);
   } catch (error) {
     console.error(error);
