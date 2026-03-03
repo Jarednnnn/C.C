@@ -7,14 +7,14 @@ import seeCommands from './lib/system/commandLoader.js';
 import initDB from './lib/system/initDB.js';
 import antilink from './commands/antilink.js';
 import level from './commands/level.js';
-import { getGroupAdmins } from './lib/message.js';   // ← Asumimos que esta función devuelve array de JIDs (strings) o objetos con .id
+import { getGroupAdmins } from './lib/message.js';   // ← Asumimos que devuelve array de JIDs/LIDs (strings)
 
 seeCommands();
 
 export default async (client, m) => {
   if (!m.message) return;
 
-  // ==================== NORMALIZACIÓN DE JID (FIX PRINCIPAL) ====================
+  // ==================== NORMALIZACIÓN DE JID ====================
   let sender = m.sender || m.key.participant || m.key.remoteJid;
   const normalizeJid = (jid) => jid ? jid.split(':')[0].split('@')[0] + '@s.whatsapp.net' : '';
   sender = normalizeJid(sender);
@@ -98,27 +98,36 @@ export default async (client, m) => {
 
   const pushname = m.pushName || 'Sin nombre';
 
-  // ==================== METADATA + ADMIN DETECTION (USANDO TU FUNCIÓN) ====================
+  // ==================== METADATA + ADMIN DETECTION CON LID MAPPING ====================
   let groupMetadata = null;
   let groupName = '';
-  let groupAdmins = [];   // aquí guardaremos solo los JIDs normalizados
+  let groupAdmins = [];   // Aquí guardaremos los JIDs normalizados (PNs)
 
   if (m.isGroup) {
     try {
       groupMetadata = await client.groupMetadata(m.chat);
       groupName = groupMetadata.subject || '';
-      const adminsRaw = getGroupAdmins(groupMetadata.participants); // ← Tu función, asume devuelve array de JIDs o objetos
+      const adminsRaw = getGroupAdmins(groupMetadata.participants); // Tu función, devuelve array de LIDs o JIDs
+
+      // Obtener el mapeo de LID a PN (asumiendo Baileys v7+)
+      const lidMapping = client.signalRepository?.lidMapping || {
+        getPNForLID: (lid) => null  // Fallback si no existe
+      };
+
       groupAdmins = adminsRaw.map(admin => {
-        if (typeof admin === 'string') return normalizeJid(admin); // Si es string (JID), normaliza
-        else if (admin && admin.id) return normalizeJid(admin.id); // Si es objeto con .id, normaliza id
-        return ''; // Ignora inválidos
-      }).filter(jid => jid); // Filtra vacíos
+        let jid = admin;
+        if (jid.endsWith('@lid')) {
+          const pn = lidMapping.getPNForLID(jid);  // Obtener PN (phone number JID) para el LID
+          if (pn) jid = pn;  // Si hay mapeo, usa el PN
+        }
+        return normalizeJid(jid);  // Normaliza al final
+      }).filter(jid => jid);  // Filtra inválidos
     } catch (err) {
       console.error('Error al obtener metadata del grupo:', err);
     }
   }
 
-  const isBotAdmins = m.isGroup ? groupAdmins.includes(botJid) : false; // Directo include ya que todo normalizado
+  const isBotAdmins = m.isGroup ? groupAdmins.includes(botJid) : false;
   const isAdmins   = m.isGroup ? groupAdmins.includes(sender) : false;
 
   // ==================== LOGS DE DEBUG PARA ADMIN DETECTION ====================
@@ -127,8 +136,9 @@ export default async (client, m) => {
     console.log('Sender raw:', m.sender);
     console.log('Normalized sender:', sender);
     console.log('BotJid normalized:', botJid);
-    console.log('Group Admins raw:', getGroupAdmins(groupMetadata.participants)); // Log raw output de tu función
-    console.log('Group Admins normalized:', groupAdmins);
+    console.log('Group Admins raw:', getGroupAdmins(groupMetadata.participants));
+    console.log('LID Mapping available:', !!client.signalRepository?.lidMapping);
+    console.log('Group Admins mapped & normalized:', groupAdmins);
     console.log('Is User Admin:', isAdmins);
     console.log('Is Bot Admin:', isBotAdmins);
     console.log('============================');
@@ -215,7 +225,7 @@ export default async (client, m) => {
     return m.reply(`ꕤ El comando *${command}* no existe.\n✎ Usa *${usedPrefix}help* para ver la lista.`);
   }
 
-  if (cmdData.isAdmin && !isAdmins) return client.reply(m.chat, mess.admin, m);   // ← Aquí ya debería reconocer admins
+  if (cmdData.isAdmin && !isAdmins) return client.reply(m.chat, mess.admin, m);   // ← Ahora con mapeo LID, debería detectar correctamente
   if (cmdData.botAdmin && !isBotAdmins) return client.reply(m.chat, mess.botAdmin, m);
 
   try {
