@@ -77,25 +77,61 @@ let command = (args.shift() || '').toLowerCase()
 let text = args.join(' ')
 
 const pushname = m.pushName || 'Sin nombre'
+// --- BLOQUE DE DETECCIÓN DE ADMINISTRADORES (CORREGIDO) ---
 let groupMetadata = null
-let groupAdmins = []
-let groupAdminsIds = [] // Array solo con los IDs para comparación más fácil
 let groupName = ''
+let isAdmins = false
+let isBotAdmins = false
 
-if (m.isGroup) {
-    groupMetadata = await client.groupMetadata(m.chat).catch(() => null)
-    groupName = groupMetadata?.subject || ''
-    
-    if (groupMetadata?.participants) {
-        // Filtramos administradores correctamente
-        groupAdmins = groupMetadata.participants.filter(p => p.admin === 'admin' || p.admin === 'superadmin')
-        // Extraemos solo los IDs (JIDs) de los administradores
-        groupAdminsIds = groupAdmins.map(p => p.id)
-    }
+// Función para normalizar JID (usa decodeJid si está disponible)
+const normalizeJid = (jid) => {
+    if (!jid) return null
+    if (client.decodeJid) return client.decodeJid(jid)
+    // Fallback manual
+    const parts = String(jid).split(':')
+    const number = parts[0].replace(/\D/g, '')
+    return number ? number + '@s.whatsapp.net' : null
 }
 
-// Verificamos si el sender está en la lista de administradores comparando directamente los IDs
-const isAdmins = m.isGroup ? groupAdminsIds.includes(sender) : false
+if (m.isGroup) {
+    try {
+        groupMetadata = await client.groupMetadata(m.chat)
+        groupName = groupMetadata.subject || ''
+
+        // Normalizar JIDs del remitente y del bot UNA SOLA VEZ
+        const senderNorm = normalizeJid(sender)
+        const botNorm = normalizeJid(client.user.id)
+
+        // Obtener participantes y filtrar admins, normalizando sus IDs
+        const participants = groupMetadata.participants || []
+        const adminJids = participants
+            .filter(p => p.admin === 'admin' || p.admin === 'superadmin')
+            .map(p => normalizeJid(p.id))
+            .filter(Boolean) // eliminar posibles nulos
+
+        // Verificar si el remitente o el bot están en la lista de admins
+        isAdmins = adminJids.includes(senderNorm)
+        isBotAdmins = adminJids.includes(botNorm)
+
+        // DEPURACIÓN: enviar información al owner (primer número en global.owner)
+        if (normalizeJid(global.owner[0]) === senderNorm) {
+            const debugMsg = 
+                `🔍 *Depuración Admin en ${groupName}*\n\n` +
+                `👤 Tu JID normalizado: ${senderNorm}\n` +
+                `🤖 Bot JID normalizado: ${botNorm}\n` +
+                `📋 Admins encontrados (${adminJids.length}):\n` +
+                adminJids.map((a, i) => `${i+1}. ${a}`).join('\n') +
+                `\n\n✅ ¿Eres admin?: ${isAdmins ? 'SÍ' : 'NO'}\n` +
+                `✅ ¿Bot es admin?: ${isBotAdmins ? 'SÍ' : 'NO'}`
+            await client.sendMessage(sender, { text: debugMsg }).catch(() => {})
+        }
+
+    } catch (e) {
+        console.error('Error al obtener metadata del grupo:', e)
+        groupMetadata = null
+    }
+}
+// --- FIN DEL BLOQUE ---
 const chatData = global.db.data.chats[from]
 const consolePrimary = chatData.primaryBot
 if (!consolePrimary || consolePrimary === client.user.id.split(':')[0] + '@s.whatsapp.net') {
