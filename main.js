@@ -101,7 +101,7 @@ export default async (client, m) => {
   const isBotAdmins = m.isGroup ? groupAdmins.includes(botJid) : false;
   const isAdmins = m.isGroup ? groupAdmins.includes(sender) : false;
 
-  // Debug ENVIADO A PRIVADO (como en el comando report/suggest)
+  // Debug ENVIADO A OWNER (como en report/suggest)
   if (m.isGroup) {
     let debugMsg = '=== DEBUG ADMIN FIX LID RESOLVED ===\n';
     debugMsg += `m.key.participant → ${m.key.participant || 'N/A'}\n`;
@@ -114,8 +114,12 @@ export default async (client, m) => {
     debugMsg += `isBotAdmins → ${isBotAdmins}\n`;
     debugMsg += '============================';
 
-    // Envía el debug a tu privado (m.sender)
-    await client.sendMessage(m.sender, { text: debugMsg });
+    // Envía a los owners, como en el comando report
+    for (const num of global.owner) {
+      try {
+        await client.sendMessage(`${num}@s.whatsapp.net`, { text: debugMsg });
+      } catch {}
+    }
   }
 
   // ... (el resto del código exactamente igual que antes: logs, primary bot, banned, private chat, stats, comando, try-catch, level(m))
