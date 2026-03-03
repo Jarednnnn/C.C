@@ -7,7 +7,7 @@ import seeCommands from './lib/system/commandLoader.js';
 import initDB from './lib/system/initDB.js';
 import antilink from './commands/antilink.js';
 import level from './commands/level.js';
-import { getGroupAdmins } from './lib/message.js';   // ← Usamos la función que ya tenías importada
+import { getGroupAdmins } from './lib/message.js';   // ← Asumimos que esta función devuelve array de JIDs (strings) o objetos con .id
 
 seeCommands();
 
@@ -101,20 +101,38 @@ export default async (client, m) => {
   // ==================== METADATA + ADMIN DETECTION (USANDO TU FUNCIÓN) ====================
   let groupMetadata = null;
   let groupName = '';
-  let groupAdmins = [];   // aquí guardaremos solo los JIDs de admins
+  let groupAdmins = [];   // aquí guardaremos solo los JIDs normalizados
 
   if (m.isGroup) {
     try {
       groupMetadata = await client.groupMetadata(m.chat);
       groupName = groupMetadata.subject || '';
-      groupAdmins = getGroupAdmins(groupMetadata.participants); // ← Usamos tu función importada
+      const adminsRaw = getGroupAdmins(groupMetadata.participants); // ← Tu función, asume devuelve array de JIDs o objetos
+      groupAdmins = adminsRaw.map(admin => {
+        if (typeof admin === 'string') return normalizeJid(admin); // Si es string (JID), normaliza
+        else if (admin && admin.id) return normalizeJid(admin.id); // Si es objeto con .id, normaliza id
+        return ''; // Ignora inválidos
+      }).filter(jid => jid); // Filtra vacíos
     } catch (err) {
       console.error('Error al obtener metadata del grupo:', err);
     }
   }
 
-  const isBotAdmins = m.isGroup ? groupAdmins.some(a => normalizeJid(a) === normalizeJid(botJid)) : false;
-  const isAdmins   = m.isGroup ? groupAdmins.some(a => normalizeJid(a) === normalizeJid(sender)) : false;
+  const isBotAdmins = m.isGroup ? groupAdmins.includes(botJid) : false; // Directo include ya que todo normalizado
+  const isAdmins   = m.isGroup ? groupAdmins.includes(sender) : false;
+
+  // ==================== LOGS DE DEBUG PARA ADMIN DETECTION ====================
+  if (m.isGroup) {
+    console.log('=== DEBUG ADMIN DETECTION ===');
+    console.log('Sender raw:', m.sender);
+    console.log('Normalized sender:', sender);
+    console.log('BotJid normalized:', botJid);
+    console.log('Group Admins raw:', getGroupAdmins(groupMetadata.participants)); // Log raw output de tu función
+    console.log('Group Admins normalized:', groupAdmins);
+    console.log('Is User Admin:', isAdmins);
+    console.log('Is Bot Admin:', isBotAdmins);
+    console.log('============================');
+  }
 
   // ==================== LOG CONSOLE ====================
   const chatData = global.db.data.chats[from] || {};
@@ -128,8 +146,6 @@ export default async (client, m) => {
 
   // ==================== PRIMARY BOT & RESTO DEL CÓDIGO ====================
   const hasPrefix = settings.prefix === true || (Array.isArray(settings.prefix) ? settings.prefix : [settings.prefix || '']).some(p => m.text.startsWith(p));
-
-  // ... (mantengo tu función getAllSessionBots igual)
 
   function getAllSessionBots() {
     const sessionDirs = ['./Sessions/Subs'];
