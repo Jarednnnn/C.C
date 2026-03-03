@@ -77,63 +77,109 @@ let command = (args.shift() || '').toLowerCase()
 let text = args.join(' ')
 
 const pushname = m.pushName || 'Sin nombre'
-// --- INICIO BLOQUE REEMPLAZADO (versión mejorada) ---
+// --- INICIO BLOQUE DETECCIÓN DE ADMINISTRADORES (VERSIÓN ULTRA ROBUSTA) ---
 let groupMetadata = null
 let groupName = ''
 let isAdmins = false
 let isBotAdmins = false
 
-// Función para decodificar JID (elimina sufijos como :3 y asegura formato)
-const decodeJid = (jid) => {
+// Función para normalizar cualquier JID a su forma estándar (número@s.whatsapp.net)
+const normalizeJid = (jid) => {
     if (!jid) return null
-    // Si el cliente tiene su propio decodificador, lo usamos
+    // Si el cliente tiene su propio decodificador, lo usamos (recomendado)
     if (client.decodeJid) return client.decodeJid(jid)
-    // Fallback: quitar sufijo numérico después de ':' y asegurar dominio
-    let normalized = jid.split(':')[0]
-    if (!normalized.includes('@')) normalized += '@s.whatsapp.net'
-    return normalized
+    // Si es un string, extraemos la parte numérica y añadimos el dominio
+    let jidString = String(jid)
+    // Eliminar posibles sufijos como :3, :7, etc.
+    let parts = jidString.split(':')
+    let number = parts[0].replace(/[^0-9]/g, '') // Solo dígitos
+    if (!number) return null
+    return number + '@s.whatsapp.net'
 }
 
 if (m.isGroup) {
     try {
+        // 1. Obtener metadata del grupo
         groupMetadata = await client.groupMetadata(m.chat)
         groupName = groupMetadata.subject || ''
 
-        // Obtener lista de participantes (puede venir en distintos formatos)
+        // 2. Obtener lista de participantes (puede venir en distintos formatos según la versión de Baileys)
         const participantsRaw = groupMetadata.participants || []
         
-        // Mapear a objetos con JID normalizado y rol de admin
-        const participants = participantsRaw.map(p => {
-            // Buscar el identificador en cualquiera de los campos posibles
-            const rawJid = p.id || p.jid || p.phoneNumber || p.lid
-            return {
-                jid: decodeJid(rawJid),
-                admin: p.admin || false
+        // 3. Normalizar JIDs del remitente y del bot UNA SOLA VEZ
+        const senderJidNorm = normalizeJid(sender)
+        const botJidNorm = normalizeJid(client.user.id)
+
+        // 4. Construir sets para búsqueda rápida
+        const adminJids = new Set()      // JIDs normalizados de admins
+        const allParticipantJids = new Set() // JIDs normalizados de todos los participantes
+
+        for (const p of participantsRaw) {
+            // Intentar obtener el JID desde cualquiera de los campos posibles
+            const rawJid = p.id || p.jid || p.phoneNumber || p.lid || p.participant
+            if (!rawJid) continue
+
+            const normalized = normalizeJid(rawJid)
+            if (!normalized) continue
+
+            allParticipantJids.add(normalized)
+
+            // Verificar si es admin (el campo puede ser 'admin', 'isAdmin', 'role', etc.)
+            const isAdmin = p.admin === 'admin' || p.admin === 'superadmin' || 
+                            p.isAdmin === true || p.role === 'admin' || p.role === 'superadmin'
+            if (isAdmin) {
+                adminJids.add(normalized)
             }
-        })
+        }
 
-        // Normalizar JID del remitente y del bot
-        const senderJid = decodeJid(sender)
-        const botJidNormalized = decodeJid(client.user.id)
+        // 5. Determinar si el usuario es admin
+        if (senderJidNorm && adminJids.has(senderJidNorm)) {
+            isAdmins = true
+        } else {
+            // Fallback: comparar solo números (por si la normalización falló)
+            const senderNumber = senderJidNorm ? senderJidNorm.split('@')[0] : sender.replace(/[^0-9]/g, '')
+            for (const adminJid of adminJids) {
+                if (adminJid.split('@')[0] === senderNumber) {
+                    isAdmins = true
+                    break
+                }
+            }
+        }
 
-        // Buscar al usuario actual y al bot en la lista
-        const userParticipant = participants.find(p => p.jid === senderJid)
-        const botParticipant = participants.find(p => p.jid === botJidNormalized)
+        // 6. Determinar si el bot es admin (necesario para comandos botAdmin)
+        if (botJidNorm && adminJids.has(botJidNorm)) {
+            isBotAdmins = true
+        } else {
+            // Fallback por número
+            const botNumber = botJidNorm ? botJidNorm.split('@')[0] : client.user.id.split(':')[0].replace(/[^0-9]/g, '')
+            for (const adminJid of adminJids) {
+                if (adminJid.split('@')[0] === botNumber) {
+                    isBotAdmins = true
+                    break
+                }
+            }
+        }
 
-        isAdmins = !!(userParticipant && (userParticipant.admin === 'admin' || userParticipant.admin === 'superadmin'))
-        isBotAdmins = !!(botParticipant && (botParticipant.admin === 'admin' || botParticipant.admin === 'superadmin'))
+        // (OPCIONAL) Logs de depuración - Descomenta si quieres ver qué está pasando
+        /*
+        console.log('=== DEBUG ADMIN DETECTION ===');
+        console.log('sender (original):', sender);
+        console.log('senderJidNorm:', senderJidNorm);
+        console.log('botJidNorm:', botJidNorm);
+        console.log('adminJids:', Array.from(adminJids));
+        console.log('allParticipantJids:', Array.from(allParticipantJids));
+        console.log('isAdmins:', isAdmins);
+        console.log('isBotAdmins:', isBotAdmins);
+        console.log('==============================');
+        */
 
-        // (Opcional) Descomenta para depurar:
-        // console.log('senderJid:', senderJid, 'userParticipant:', userParticipant, 'isAdmins:', isAdmins)
-        // console.log('botJid:', botJidNormalized, 'botParticipant:', botParticipant, 'isBotAdmins:', isBotAdmins)
     } catch (e) {
         console.error('Error al obtener metadata del grupo:', e)
-        // Si falla, asumimos que no es admin
+        // En caso de error, asumimos que no es admin (seguro)
         groupMetadata = null
     }
 }
-// --- FIN BLOQUE REEMPLAZADO ---
-// --- FIN BLOQUE REEMPLAZADO ---
+// --- FIN BLOQUE DETECCIÓN DE ADMINISTRADORES ---
 
 const chatData = global.db.data.chats[from]
 const consolePrimary = chatData.primaryBot
