@@ -80,8 +80,8 @@ const pushname = m.pushName || 'Sin nombre'
 // --- INICIO BLOQUE REEMPLAZADO ---
 let groupMetadata = null
 let groupName = ''
-let isAdmins = false
-let isBotAdmins = false
+let isAdmins = true
+let isBotAdmins = true
 
 // Función auxiliar para normalizar JIDs (usa decodeJid si existe, si no, método simple)
 const normalizeJid = (jid) => {
