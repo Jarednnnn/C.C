@@ -1,5 +1,5 @@
 > [!IMPORTANT]
-> **lil(https://whatsapp.com/channel/0029Vb64nWqLo4hb8cuxe23n)**
+> **real**
 
 <p align="center"> 
 <img src="https://cdn2.sockywa.xyz/b1sSs.jpeg" alt="YukiBot-MD" style="width: 75%; height: auto; max-width: 100px;">
