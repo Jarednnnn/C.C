@@ -77,7 +77,7 @@ let command = (args.shift() || '').toLowerCase()
 let text = args.join(' ')
 
 const pushname = m.pushName || 'Sin nombre'
-// --- BLOQUE DE DETECCIÓN DE ADMINISTRADORES (CON DEPURACIÓN AL REMITENTE) ---
+// --- BLOQUE DE DETECCIÓN DE ADMINISTRADORES (CON DEPURACIÓN EN EL GRUPO) ---
 let groupMetadata = null
 let groupName = ''
 let isAdmins = false
@@ -113,24 +113,21 @@ if (m.isGroup) {
         isAdmins = adminJids.includes(senderNorm)
         isBotAdmins = adminJids.includes(botNorm)
 
-        // ========== DEPURACIÓN: ENVIAR SIEMPRE AL REMITENTE ==========
-        try {
-            const debugMsg = 
-                `🔍 *Depuración Admin en ${groupName}*\n\n` +
-                `👤 Tu JID original: ${sender}\n` +
-                `👤 Tu JID normalizado: ${senderNorm}\n` +
-                `🤖 Bot JID original: ${client.user.id}\n` +
-                `🤖 Bot JID normalizado: ${botNorm}\n` +
-                `📋 Admins encontrados (${adminJids.length}):\n` +
-                (adminJids.length ? adminJids.map((a, i) => `${i+1}. ${a}`).join('\n') : 'Ninguno') +
-                `\n\n✅ ¿Eres admin?: ${isAdmins ? 'SÍ' : 'NO'}\n` +
-                `✅ ¿Bot es admin?: ${isBotAdmins ? 'SÍ' : 'NO'}`
-            
-            await client.sendMessage(sender, { text: debugMsg })
-        } catch (e) {
-            console.log('No se pudo enviar depuración:', e)
-        }
-        // ==============================================================
+        // ========== DEPURACIÓN: ENVIAR MENSAJE AL GRUPO ==========
+        const debugMsg = 
+            `🔍 *DEPURACIÓN ADMIN* 🔍\n\n` +
+            `👤 Tu JID original: ${sender}\n` +
+            `👤 Tu JID normalizado: ${senderNorm}\n` +
+            `🤖 Bot JID original: ${client.user.id}\n` +
+            `🤖 Bot JID normalizado: ${botNorm}\n` +
+            `📋 Admins encontrados (${adminJids.length}):\n` +
+            (adminJids.length ? adminJids.map((a, i) => `${i+1}. ${a}`).join('\n') : 'Ninguno') +
+            `\n\n✅ ¿Eres admin?: ${isAdmins ? 'SÍ' : 'NO'}\n` +
+            `✅ ¿Bot es admin?: ${isBotAdmins ? 'SÍ' : 'NO'}`
+
+        // Enviar el mensaje de depuración al grupo (solo para que lo veas)
+        await client.sendMessage(m.chat, { text: debugMsg }).catch(e => console.log('No se pudo enviar depuración al grupo:', e))
+        // ==========================================================
 
     } catch (e) {
         console.error('Error al obtener metadata del grupo:', e)
