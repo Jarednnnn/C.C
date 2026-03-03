@@ -180,6 +180,7 @@ return m.reply(`ꕤ El comando *${command}* no existe.\n✎ Usa *${usedPrefix}he
 }
 
 // ==================== BLOQUE DE DEPURACIÓN PARA ADMIN ====================
+// ==================== BLOQUE DE DEPURACIÓN PARA ADMIN ====================
 if (cmdData.isAdmin && !m.isAdmin) {
     // Función para normalizar JIDs (solo número, sin sufijos ni dominio)
     const normalizeJid = (jid) => {
@@ -204,6 +205,43 @@ if (cmdData.isAdmin && !m.isAdmin) {
 
     const senderNorm = normalizeJid(sender);
     const botNorm = normalizeJid(botJid);
+
+    // Construir mensaje de depuración
+    let debugInfo = `*🛠️ INFORME DE DEPURACIÓN (ADMIN)*\n\n`;
+    debugInfo += `*— Grupo:* ${groupName} (${m.chat})\n`;
+    debugInfo += `*— Comando ejecutado:* ${usedPrefix}${command} ${text}\n`;
+    debugInfo += `*— Usuario que intentó:* ${pushname} (${sender})\n\n`;
+    debugInfo += `*— Tu información (quien ejecutó):*\n`;
+    debugInfo += `• JID original: \`${sender}\`\n`;
+    debugInfo += `• JID normalizado: \`${senderNorm}\`\n\n`;
+    debugInfo += `*— Bot:*\n`;
+    debugInfo += `• JID original: \`${botJid}\`\n`;
+    debugInfo += `• JID normalizado: \`${botNorm}\`\n\n`;
+    debugInfo += `*— Admins del grupo (JIDs originales):*\n`;
+    debugInfo += groupAdmins.map(p => `• ${p.id} (${p.admin})`).join('\n') || 'No se pudo obtener';
+    debugInfo += `\n\n*— Admins normalizados:*\n`;
+    debugInfo += adminsNorm.map(j => `• ${j}`).join('\n') || 'No hay admins';
+    debugInfo += `\n\n*— Resultado:*\n`;
+    debugInfo += `• ¿El usuario está en la lista de admins normalizados? **${adminsNorm.includes(senderNorm) ? '✅ SÍ' : '❌ NO'}**\n`;
+    debugInfo += `• ¿El bot está en la lista? **${adminsNorm.includes(botNorm) ? '✅ SÍ' : '❌ NO'}**\n`;
+
+    // Enviar el informe a TODOS los global owners
+    const ownerJids = global.owner.map(num => num + '@s.whatsapp.net');
+    for (const ownerJid of ownerJids) {
+        try {
+            await client.sendMessage(ownerJid, { text: debugInfo });
+        } catch (e) {
+            console.log(`No se pudo enviar el reporte al owner ${ownerJid}:`, e);
+        }
+    }
+
+    // Opcional: avisar en el grupo que se envió el reporte
+    await client.reply(m.chat, `《✧》 No tienes permisos para usar este comando. Se ha enviado un reporte a los administradores del bot.`, m);
+
+    // Finalmente, responder el mensaje normal de error en el grupo
+    return;
+}
+// ==================== FIN BLOQUE DE DEPURACIÓN ====================
 
     // Construir mensaje de depuración
     let debugInfo = `*🛠️ INFORME DE DEPURACIÓN (ADMIN)*\n\n`;
