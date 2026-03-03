@@ -7,115 +7,181 @@ import seeCommands from './lib/system/commandLoader.js';
 import initDB from './lib/system/initDB.js';
 import antilink from './commands/antilink.js';
 import level from './commands/level.js';
+import { getGroupAdmins } from './lib/message.js';   // ← Usamos la función que ya tenías importada
 
 seeCommands();
 
 export default async (client, m) => {
   if (!m.message) return;
 
-  const sender = m.sender;
-  let body = m.message.conversation || m.message.extendedTextMessage?.text || 
-             m.message.imageMessage?.caption || m.message.videoMessage?.caption || 
+  // ==================== NORMALIZACIÓN DE JID (FIX PRINCIPAL) ====================
+  let sender = m.sender || m.key.participant || m.key.remoteJid;
+  const normalizeJid = (jid) => jid ? jid.split(':')[0].split('@')[0] + '@s.whatsapp.net' : '';
+  sender = normalizeJid(sender);
+
+  const botJid = normalizeJid(client.user.id || client.user.lid);
+
+  // ==================== BODY Y TEXT ====================
+  let body = m.message.conversation || 
+             m.message.extendedTextMessage?.text || 
+             m.message.imageMessage?.caption || 
+             m.message.videoMessage?.caption || 
              m.message.buttonsResponseMessage?.selectedButtonId || 
              m.message.listResponseMessage?.singleSelectReply?.selectedRowId || 
              m.message.templateButtonReplyMessage?.selectedId || '';
 
-  m.text = body;                    // ← CRÍTICO: esto arregla el comando
+  m.text = body;   // ← Importante para que todo funcione
 
   initDB(m, client);
   antilink(client, m);
 
-  // Plugins .all
+  // Plugins .all()
   for (const name in global.plugins) {
     const plugin = global.plugins[name];
-    if (plugin?.all) {
-      try { await plugin.all.call(client, m, { client }); } catch (e) {}
+    if (plugin && typeof plugin.all === "function") {
+      try { await plugin.all.call(client, m, { client }); }
+      catch (err) { console.error(`Error en plugin.all -> ${name}`, err); }
     }
   }
 
   const from = m.key.remoteJid;
-  const botJid = client.user.id.split(':')[0] + '@s.whatsapp.net';
   const chat = global.db.data.chats[m.chat] || {};
   const settings = global.db.data.settings[botJid] || {};
   const user = global.db.data.users[sender] ||= {};
-  const users = chat.users[sender] || {};
-
-  // ==================== PREFIX ====================
+  const users = chat.users?.[sender] || {};
   const rawBotname = settings.namebot || 'Yuki';
   const tipo = settings.type || 'Sub';
   const namebot = /^[\w\s]+$/.test(rawBotname) ? rawBotname : 'Yuki';
 
-  const shortForms = [namebot.charAt(0), namebot.split(" ")[0], tipo.split(" ")[0], 
-                      namebot.split(" ")[0].slice(0,2), namebot.split(" ")[0].slice(0,3)];
-  const prefixes = [...new Set([namebot, ...shortForms.map(n => n)])];
+  const shortForms = [namebot.charAt(0), namebot.split(" ")[0], tipo.split(" ")[0], namebot.split(" ")[0].slice(0, 2), namebot.split(" ")[0].slice(0, 3)];
+  const prefixes = [...new Set([namebot, ...shortForms.map(n => n)])]; // sin duplicados
 
-  let pluginPrefix = client.prefix || 
-    (Array.isArray(settings.prefix) || typeof settings.prefix === 'string' 
-      ? new RegExp('^(' + prefixes.join('|') + ')?(' + 
-          (Array.isArray(settings.prefix) ? settings.prefix : [settings.prefix])
-            .map(p => p.replace(/[|\\{}()[\]^$+*.\-\^]/g, '\\$&')).join('|') + ')', 'i')
-      : settings.prefix === true 
-        ? /^/i 
-        : new RegExp('^(' + prefixes.join('|') + ')?', 'i'));
+  let prefix;
+  if (Array.isArray(settings.prefix) || typeof settings.prefix === 'string') {
+    const prefixArray = Array.isArray(settings.prefix) ? settings.prefix : [settings.prefix];
+    prefix = new RegExp(`^(${prefixes.join('|')})?(${prefixArray.map(p => p.replace(/[|\\{}()[\]^$+*.\-]/g, '\\$&')).join('|')})`, 'i');
+  } else if (settings.prefix === true) {
+    prefix = /^/i;
+  } else {
+    prefix = new RegExp(`^(${prefixes.join('|')})?`, 'i');
+  }
 
-  const match = (Array.isArray(pluginPrefix) ? pluginPrefix : [pluginPrefix])
-    .map(p => [p instanceof RegExp ? p : new RegExp(p), p.exec(m.text)])
-    .find(([_, exec]) => exec);
+  let pluginPrefix = client.prefix || prefix;
+  let match = null;
+  if (pluginPrefix instanceof RegExp) {
+    match = [pluginPrefix.exec(m.text), pluginPrefix];
+  } else if (Array.isArray(pluginPrefix)) {
+    for (const p of pluginPrefix) {
+      const regex = p instanceof RegExp ? p : new RegExp(p.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&'));
+      const res = regex.exec(m.text);
+      if (res) { match = [res, regex]; break; }
+    }
+  }
+
+  // Plugins .before()
+  for (const name in global.plugins) {
+    const plugin = global.plugins[name];
+    if (!plugin || plugin.disabled || typeof plugin.before !== "function") continue;
+    try {
+      if (await plugin.before.call(client, m, { client })) return;
+    } catch (err) {
+      console.error(`Error en plugin.before -> ${name}`, err);
+    }
+  }
 
   if (!match) return;
 
-  let usedPrefix = match[1][0] || '';
-  let args = m.text.slice(usedPrefix.length).trim().split(/\s+/);
+  let usedPrefix = (match[0] || [])[0] || '';
+  let args = m.text.slice(usedPrefix.length).trim().split(/ +/);
   let command = (args.shift() || '').toLowerCase();
   let text = args.join(' ');
 
-  // ==================== GRUPO METADATA (con LID fix) ====================
+  const pushname = m.pushName || 'Sin nombre';
+
+  // ==================== METADATA + ADMIN DETECTION (USANDO TU FUNCIÓN) ====================
   let groupMetadata = null;
-  let groupAdmins = [];
   let groupName = '';
+  let groupAdmins = [];   // aquí guardaremos solo los JIDs de admins
 
   if (m.isGroup) {
     try {
       groupMetadata = await client.groupMetadata(m.chat);
       groupName = groupMetadata.subject || '';
-      groupAdmins = groupMetadata.participants.filter(p => 
-        p.admin === 'admin' || p.admin === 'superadmin'
-      );
+      groupAdmins = getGroupAdmins(groupMetadata.participants); // ← Usamos tu función importada
     } catch (err) {
-      console.error('Error groupMetadata:', err);
+      console.error('Error al obtener metadata del grupo:', err);
     }
   }
 
-  // ✅ DETECCIÓN DE ADMIN ROBUSTA (arregla el #close, !close, etc.)
-  const normalize = (jid) => (jid || '').replace(/@lid$/, '@s.whatsapp.net');
-
-  const isBotAdmins = m.isGroup ? groupAdmins.some(p => 
-    normalize(p.id) === botJid || 
-    normalize(p.jid) === botJid || 
-    normalize(p.lid) === botJid
-  ) : false;
-
-  const isAdmins = m.isGroup ? groupAdmins.some(p => 
-    normalize(p.id) === sender || 
-    normalize(p.jid) === sender || 
-    normalize(p.lid) === sender
-  ) : false;
+  const isBotAdmins = m.isGroup ? groupAdmins.some(a => normalizeJid(a) === normalizeJid(botJid)) : false;
+  const isAdmins   = m.isGroup ? groupAdmins.some(a => normalizeJid(a) === normalizeJid(sender)) : false;
 
   // ==================== LOG CONSOLE ====================
-  const pushname = m.pushName || 'Sin nombre';
-  if (!chat.primaryBot || chat.primaryBot === botJid) {
+  const chatData = global.db.data.chats[from] || {};
+  const consolePrimary = chatData.primaryBot;
+  if (!consolePrimary || consolePrimary === botJid) {
     const h = chalk.bold.blue('╭────────────────────────────···');
     const t = chalk.bold.blue('╰────────────────────────────···');
     const v = chalk.bold.blue('│');
-    console.log(`\n${h}\n${chalk.bold.yellow(`${v} Fecha: ${moment().format('DD/MM/YY HH:mm:ss')}`)}\n${chalk.bold.blueBright(`${v} Usuario: ${pushname}`)}\n${chalk.bold.magentaBright(`${v} Remitente: ${gradient('deepskyblue','darkorchid')(sender)}`)}\n${m.isGroup ? chalk.bold.cyanBright(`${v} Grupo: ${groupName}\n${v} ID: ${gradient('violet','midnightblue')(from)}\n`) : chalk.bold.greenBright(`${v} Chat privado\n`)}${t}`);
+    console.log(`\n${h}\n${chalk.bold.yellow(`${v} Fecha: ${chalk.whiteBright(moment().format('DD/MM/YY HH:mm:ss'))}`)}\n${chalk.bold.blueBright(`${v} Usuario: ${chalk.whiteBright(pushname)}`)}\n${chalk.bold.magentaBright(`${v} Remitente: ${gradient('deepskyblue', 'darkorchid')(sender)}`)}\n${m.isGroup ? chalk.bold.cyanBright(`${v} Grupo: ${chalk.greenBright(groupName)}\n${v} ID: ${gradient('violet', 'midnightblue')(from)}\n`) : chalk.bold.greenBright(`${v} Chat privado\n`)}${t}`);
   }
 
-  // ==================== RESTO DEL CÓDIGO (sin cambios importantes) ====================
-  // ... (el resto del código que ya tenías: primaryBot, ignore 3EB0/BAE5, owners, banned, etc.)
+  // ==================== PRIMARY BOT & RESTO DEL CÓDIGO ====================
+  const hasPrefix = settings.prefix === true || (Array.isArray(settings.prefix) ? settings.prefix : [settings.prefix || '']).some(p => m.text.startsWith(p));
 
-  if (chat?.isBanned && !(command === 'bot' && text === 'on') && !global.owner.includes(sender.split('@')[0])) {
-    return m.reply(`ꕥ El bot *${settings.botname || 'Yuki'}* está desactivado en este grupo.\n\n> ✎ Un administrador puede activarlo con:\n> » *${usedPrefix}bot on*`);
+  // ... (mantengo tu función getAllSessionBots igual)
+
+  function getAllSessionBots() {
+    const sessionDirs = ['./Sessions/Subs'];
+    let bots = [];
+    for (const dir of sessionDirs) {
+      try {
+        const subDirs = fs.readdirSync(path.resolve(dir));
+        for (const sub of subDirs) {
+          if (fs.existsSync(path.resolve(dir, sub, 'creds.json'))) {
+            bots.push(sub + '@s.whatsapp.net');
+          }
+        }
+      } catch {}
+    }
+    try {
+      if (fs.existsSync('./Sessions/Owner/creds.json')) {
+        bots.push(normalizeJid(global.client?.user?.id));
+      }
+    } catch {}
+    return bots;
   }
+
+  const botprimaryId = chat?.primaryBot;
+  if (botprimaryId && botprimaryId !== botJid) {
+    if (hasPrefix) {
+      const participants = m.isGroup ? (await client.groupMetadata(m.chat).catch(() => ({ participants: [] }))).participants : [];
+      const primaryInGroup = participants.some(p => normalizeJid(p.id) === normalizeJid(botprimaryId));
+      const primaryInSessions = getAllSessionBots().includes(normalizeJid(botprimaryId));
+      if (!primaryInSessions || !primaryInGroup) return;
+    }
+  }
+
+  if (m.id?.startsWith("3EB0") || (m.id?.startsWith("BAE5") && m.id.length === 16) || (m.id?.startsWith("B24E") && m.id.length === 20)) return;
+
+  const isOwners = [botJid, ...(settings.owner ? [normalizeJid(settings.owner)] : []), ...global.owner.map(num => normalizeJid(num + '@s.whatsapp.net'))].includes(sender);
+
+  if (!isOwners && settings.self) return;
+
+  if (!m.chat.endsWith('g.us')) {
+    const allowed = ['report','reporte','sug','suggest','invite','invitar','setname','setbotname','setbanner','setmenubanner','setusername','setpfp','setimage','setbotcurrency','setbotprefix','setstatus','setbotowner','reload','code','qr'];
+    if (!isOwners && !allowed.includes(command)) return;
+  }
+
+  if (chat?.isBanned && !(command === 'bot' && text === 'on') && !global.owner.map(n => normalizeJid(n + '@s.whatsapp.net')).includes(sender)) {
+    return m.reply(`ꕥ El bot *${settings.botname || 'Yuki'}* está desactivado en este grupo.\n\n> ✎ Un *administrador* puede activarlo con:\n> » *${usedPrefix}bot on*`);
+  }
+
+  const today = new Date().toLocaleDateString('es-CO', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' }).split('/').reverse().join('-');
+  const userrs = chatData.users?.[sender] || {};
+  if (!userrs.stats) userrs.stats = {};
+  if (!userrs.stats[today]) userrs.stats[today] = { msgs: 0, cmds: 0 };
+  userrs.stats[today].msgs++;
 
   if (chat.adminonly && !isAdmins) return;
 
@@ -125,29 +191,33 @@ export default async (client, m) => {
   if (!cmdData) {
     if (settings.prefix === true) return;
     await client.readMessages([m.key]);
-    return m.reply(`ꕤ El comando *${command}* no existe.\n✎ Usa *${usedPrefix}help*`);
+    return m.reply(`ꕤ El comando *${command}* no existe.\n✎ Usa *${usedPrefix}help* para ver la lista.`);
   }
 
-  if (cmdData.isAdmin && !isAdmins) {
-    return client.reply(m.chat, mess.admin || '《✧》 Este comando solo puede ser ejecutado por los Administradores del Grupo.', m);
+  if (cmdData.isOwner && !isOwners) {
+    if (settings.prefix === true) return;
+    return m.reply(`ꕤ El comando *${command}* no existe.\n✎ Usa *${usedPrefix}help* para ver la lista.`);
   }
 
-  if (cmdData.botAdmin && !isBotAdmins) {
-    return client.reply(m.chat, mess.botAdmin || '《✧》 Necesito ser administrador para ejecutar este comando.', m);
-  }
+  if (cmdData.isAdmin && !isAdmins) return client.reply(m.chat, mess.admin, m);   // ← Aquí ya debería reconocer admins
+  if (cmdData.botAdmin && !isBotAdmins) return client.reply(m.chat, mess.botAdmin, m);
 
-  // Ejecución del comando
   try {
     await client.readMessages([m.key]);
     user.usedcommands = (user.usedcommands || 0) + 1;
     settings.commandsejecut = (settings.commandsejecut || 0) + 1;
+    users.usedTime = new Date();
+    users.lastCmd = Date.now();
     user.exp = (user.exp || 0) + Math.floor(Math.random() * 100);
-    user.name = m.pushName;
+    user.name = pushname;
+
+    if (!userrs.stats[today]) userrs.stats[today] = { msgs: 0, cmds: 0 };
+    userrs.stats[today].cmds++;
 
     await cmdData.run(client, m, args, usedPrefix, command, text);
   } catch (error) {
     console.error(error);
-    await client.sendMessage(m.chat, { text: `《✧》 Error al ejecutar el comando:\n${error.message}` }, { quoted: m });
+    await client.sendMessage(m.chat, { text: `《✧》 Error al ejecutar el comando:\n${error.message || error}` }, { quoted: m });
   }
 
   level(m);
