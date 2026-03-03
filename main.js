@@ -9,17 +9,13 @@ import initDB from './lib/system/initDB.js';
 import antilink from './commands/antilink.js';
 import level from './commands/level.js';
 import { getGroupAdmins } from './lib/message.js';
-
 seeCommands()
-
 export default async (client, m) => {
     if (!m.message) return
     const sender = m.sender
     let body = m.message.conversation || m.message.extendedTextMessage?.text || m.message.imageMessage?.caption || m.message.videoMessage?.caption || m.message.buttonsResponseMessage?.selectedButtonId || m.message.listResponseMessage?.singleSelectReply?.selectedRowId || m.message.templateButtonReplyMessage?.selectedId || ''
-
     initDB(m, client)
     antilink(client, m)
-
     for (const name in global.plugins) {
         const plugin = global.plugins[name]
         if (plugin && typeof plugin.all === "function") {
@@ -30,7 +26,6 @@ export default async (client, m) => {
             }
         }
     }
-
     const from = m.key.remoteJid
     const botJid = client.user.id.split(':')[0] + '@s.whatsapp.net' || client.user.lid
     const chat = global.db.data.chats[m.chat] || {}
@@ -60,7 +55,6 @@ export default async (client, m) => {
         return [regex.exec(m.text), regex]
     }) : typeof pluginPrefix === 'string' ? [[new RegExp(strRegex(pluginPrefix)).exec(m.text), new RegExp(strRegex(pluginPrefix))]] : [[null, null]]
     let match = matchs.find(p => p[0])
-
     for (const name in global.plugins) {
         const plugin = global.plugins[name]
         if (!plugin) continue
@@ -75,37 +69,33 @@ export default async (client, m) => {
             }
         }
     }
-
     if (!match) return
     let usedPrefix = (match[0] || [])[0] || ''
     let args = m.text.slice(usedPrefix.length).trim().split(" ")
     let command = (args.shift() || '').toLowerCase()
     let text = args.join(' ')
-
     const pushname = m.pushName || 'Sin nombre'
     let groupMetadata = null
     let groupAdmins = []
     let groupName = ''
+    // LID raw del mensaje (antes de resolver a teléfono)
+    const rawParticipant = m.key?.participant || ''
+    const rawBotId = client.user?.lid || client.user?.id || ''
     if (m.isGroup) {
         groupMetadata = await client.groupMetadata(m.chat).catch(() => null)
         groupName = groupMetadata?.subject || ''
         groupAdmins = groupMetadata?.participants.filter(p => (p.admin === 'admin' || p.admin === 'superadmin')) || []
     }
-    const isBotAdmins = m.isGroup
-        ? groupAdmins.some(p => {
-            const pid = p.id || p.jid || ''
-            const botLid = client.user?.lid || ''
-            return pid === botJid || pid === botLid || pid.includes(botJid.split('@')[0])
+    const isAdminParticipant = (targetJid, targetLid) => {
+        return groupAdmins.some(p => {
+            const pid = (p.id || p.jid || '').toLowerCase()
+            const t1 = (targetJid || '').toLowerCase()
+            const t2 = (targetLid || '').toLowerCase()
+            return pid === t1 || pid === t2 || (t1 && pid.split('@')[0] === t1.split('@')[0])
         })
-        : false
-    const isAdmins = m.isGroup
-        ? groupAdmins.some(p => {
-            const pid = p.id || p.jid || ''
-            const senderLid = m.senderLid || m.lid || ''
-            return pid === sender || pid === senderLid || pid.includes(sender.split('@')[0])
-        })
-        : false
-
+    }
+    const isBotAdmins = m.isGroup ? isAdminParticipant(botJid, rawBotId) : false
+    const isAdmins = m.isGroup ? isAdminParticipant(sender, rawParticipant) : false
     const chatData = global.db.data.chats[from]
     const consolePrimary = chatData.primaryBot
     if (!consolePrimary || consolePrimary === client.user.id.split(':')[0] + '@s.whatsapp.net') {
@@ -114,7 +104,6 @@ export default async (client, m) => {
         const v = chalk.bold.blue('│')
         console.log(`\n${h}\n${chalk.bold.yellow(`${v} Fecha: ${chalk.whiteBright(moment().format('DD/MM/YY HH:mm:ss'))}`)}\n${chalk.bold.blueBright(`${v} Usuario: ${chalk.whiteBright(pushname)}`)}\n${chalk.bold.magentaBright(`${v} Remitente: ${gradient('deepskyblue', 'darkorchid')(sender)}`)}\n${m.isGroup ? chalk.bold.cyanBright(`${v} Grupo: ${chalk.greenBright(groupName)}\n${v} ID: ${gradient('violet', 'midnightblue')(from)}\n`) : chalk.bold.greenBright(`${v} Chat privado\n`)}${t}`)
     }
-
     const hasPrefix = settings.prefix === true ? true : (Array.isArray(settings.prefix) ? settings.prefix : typeof settings.prefix === 'string' ? [settings.prefix] : []).some(p => m.text?.startsWith(p))
     function getAllSessionBots() {
         const sessionDirs = ['./Sessions/Subs']
@@ -154,7 +143,6 @@ export default async (client, m) => {
             }
         }
     }
-
     if ((m.id.startsWith("3EB0") || (m.id.startsWith("BAE5") && m.id.length === 16) || (m.id.startsWith("B24E") && m.id.length === 20))) return
     const isOwners = [botJid, ...(settings.owner ? [settings.owner] : []), ...global.owner.map(num => num + '@s.whatsapp.net')].includes(sender)
     if (!isOwners && settings.self) return
@@ -166,13 +154,11 @@ export default async (client, m) => {
         await m.reply(`ꕥ El bot *${settings.botname}* está desactivado en este grupo.\n\n> ✎ Un *administrador* puede activarlo con el comando:\n> » *${usedPrefix}bot on*`)
         return
     }
-
     const today = new Date().toLocaleDateString('es-CO', { timeZone: 'America/Bogota', year: 'numeric', month: '2-digit', day: '2-digit' }).split('/').reverse().join('-')
     const userrs = chatData.users[sender] || {}
     if (!userrs.stats) userrs.stats = {}
     if (!userrs.stats[today]) userrs.stats[today] = { msgs: 0, cmds: 0 }
     userrs.stats[today].msgs++
-
     if (chat.adminonly && !isAdmins) return
     if (!command) return
     const cmdData = global.comandos.get(command)
