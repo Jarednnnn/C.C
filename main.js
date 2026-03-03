@@ -77,113 +77,16 @@ let command = (args.shift() || '').toLowerCase()
 let text = args.join(' ')
 
 const pushname = m.pushName || 'Sin nombre'
-// --- BLOQUE DETECCIÓN ADMINISTRADORES (VERSIÓN FUERZA BRUTA CON LOGS) ---
 let groupMetadata = null
+let groupAdmins = []
 let groupName = ''
-let isAdmins = false
-let isBotAdmins = false
-
-// Función para extraer solo el número de teléfono (sin @s.whatsapp.net ni sufijos)
-const extractNumber = (jid) => {
-    if (!jid) return null
-    // Convertir a string y eliminar cualquier cosa que no sea dígito
-    return String(jid).replace(/[^0-9]/g, '')
-}
-
 if (m.isGroup) {
-    try {
-        groupMetadata = await client.groupMetadata(m.chat)
-        groupName = groupMetadata.subject || ''
-
-        // Obtener participantes
-        const participants = groupMetadata.participants || []
-        
-        // Números del remitente y del bot (solo dígitos)
-        const senderNumber = extractNumber(sender)
-        const botNumber = extractNumber(client.user.id)
-
-        // Recorrer participantes para determinar si el sender es admin y si el bot es admin
-        for (const p of participants) {
-            // Obtener el JID del participante desde cualquier campo
-            const participantJid = p.id || p.jid || p.phoneNumber || p.lid || p.participant
-            if (!participantJid) continue
-
-            const participantNumber = extractNumber(participantJid)
-            if (!participantNumber) continue
-
-            // Verificar si este participante es el sender
-            if (participantNumber === senderNumber) {
-                // Comprobar si es admin (el campo puede ser 'admin', 'isAdmin', 'role')
-                const isAdminParticipant = p.admin === 'admin' || p.admin === 'superadmin' || 
-                                          p.isAdmin === true || p.role === 'admin' || p.role === 'superadmin'
-                if (isAdminParticipant) {
-                    isAdmins = true
-                }
-            }
-
-            // Verificar si este participante es el bot
-            if (participantNumber === botNumber) {
-                const isAdminBot = p.admin === 'admin' || p.admin === 'superadmin' || 
-                                   p.isAdmin === true || p.role === 'admin' || p.role === 'superadmin'
-                if (isAdminBot) {
-                    isBotAdmins = true
-                }
-            }
-
-            // Si ya encontramos ambos, podemos romper el ciclo (opcional)
-            // if (isAdmins && isBotAdmins) break;
-        }
-
-        // --- LOGS DE DEPURACIÓN (descomentar para ver) ---
-       // =============================================
-// BLOQUE DE DEPURACIÓN PARA DETECCIÓN DE ADMIN
-// Envía info detallada al owner (primer número en global.owner)
-// =============================================
-if (m.isGroup && (m.sender === global.owner[0] + '@s.whatsapp.net' || m.sender.includes(global.owner[0]))) {
-    try {
-        const groupMeta = await client.groupMetadata(m.chat);
-        let depuracion = `🔍 *DEPURACIÓN ADMIN - GRUPO:* ${groupMeta.subject || m.chat}\n\n`;
-        depuracion += `👤 *Remitente original:* ${m.sender}\n`;
-        depuracion += `🤖 *Bot original:* ${client.user.id}\n`;
-        depuracion += `📋 *Participantes:* ${groupMeta.participants.length}\n\n`;
-
-        groupMeta.participants.forEach((p, i) => {
-            depuracion += `*${i+1}.* ID: ${p.id || 'null'}\n`;
-            depuracion += `   JID: ${p.jid || 'null'}\n`;
-            depuracion += `   Phone: ${p.phoneNumber || 'null'}\n`;
-            depuracion += `   LID: ${p.lid || 'null'}\n`;
-            depuracion += `   Participant: ${p.participant || 'null'}\n`;
-            depuracion += `   Admin: ${p.admin}\n`;
-            depuracion += `   isAdmin: ${p.isAdmin}\n`;
-            depuracion += `   role: ${p.role}\n`;
-            depuracion += `   superAdmin: ${p.superAdmin}\n`;
-            depuracion += `   type: ${p.type}\n`;
-
-            // Otras propiedades no listadas
-            const otras = Object.keys(p).filter(k => !['id','jid','phoneNumber','lid','participant','admin','isAdmin','role','superAdmin','type'].includes(k));
-            if (otras.length) {
-                depuracion += `   Otras: ${otras.map(k => `${k}=${p[k]}`).join(', ')}\n`;
-            }
-            depuracion += `\n`;
-        });
-
-        // Información adicional del objeto m
-        depuracion += `📨 *Propiedades de m:*\n`;
-        depuracion += `   - chat: ${m.chat}\n`;
-        depuracion += `   - isGroup: ${m.isGroup}\n`;
-        depuracion += `   - sender: ${m.sender}\n`;
-        depuracion += `   - fromMe: ${m.fromMe}\n`;
-        depuracion += `   - key.id: ${m.key?.id}\n`;
-
-        // Enviar al número del primer owner
-        const ownerJid = global.owner[0] + '@s.whatsapp.net';
-        await client.sendMessage(ownerJid, { text: depuracion }, { quoted: null });
-    } catch (e) {
-        console.error('Error en depuración admin:', e);
-    }
+groupMetadata = await client.groupMetadata(m.chat).catch(() => null)
+groupName = groupMetadata?.subject || ''
+groupAdmins = groupMetadata?.participants.filter(p => (p.admin === 'admin' || p.admin === 'superadmin')) || []
 }
-// =============================================
-// --- FIN BLOQUE DETECCIÓN ADMINISTRADORES ---
+const isBotAdmins = m.isGroup ? groupAdmins.some(p => p.phoneNumber === botJid || p.jid === botJid || p.id === botJid || p.lid === botJid ) : false
+const isAdmins = m.isGroup ? groupAdmins.some(p => p.phoneNumber === sender || p.jid === sender || p.id === sender || p.lid === sender ) : false
 
 const chatData = global.db.data.chats[from]
 const consolePrimary = chatData.primaryBot
