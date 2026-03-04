@@ -30,21 +30,28 @@ export default {
         try {
             // --- 1. Determinar el destinatario (usuario al que se le quitará el personaje) ---
             let targetId = null;
+            let argsFiltrados = [...args]; // copia para modificar
 
             // Prioridad 1: Menciones
             if (m.mentionedJid && m.mentionedJid.length > 0) {
                 targetId = await resolveLidToRealJid(m.mentionedJid[0], client, m.chat);
+                // Eliminar de args cualquier argumento que sea una mención (contenga @)
+                argsFiltrados = argsFiltrados.filter(arg => !arg.includes('@'));
             }
             // Prioridad 2: Mensaje citado
             else if (m.quoted) {
                 targetId = await resolveLidToRealJid(m.quoted.sender, client, m.chat);
+                // En este caso no hay mención en args, así que no filtramos
             }
             // Prioridad 3: Último argumento si parece un número (sin @)
             else if (args.length > 0) {
+                // El último argumento podría ser el número
                 const lastArg = args[args.length - 1];
+                // Si no tiene @ y parece un número (solo dígitos y quizás +)
                 if (!lastArg.includes('@') && /^[0-9+]+$/.test(lastArg)) {
                     targetId = normalizeNumber(lastArg);
-                    args.pop(); // Quitamos ese argumento de la lista
+                    // Quitamos ese argumento de la lista
+                    argsFiltrados.pop();
                 }
             }
 
@@ -52,12 +59,12 @@ export default {
                 return client.reply(m.chat, formatMessage('❀ Debes mencionar, citar o escribir el número del usuario al que quieres quitar el personaje.'), m);
             }
 
-            // --- 2. Identificador del personaje (lo que queda en args) ---
-            if (args.length === 0) {
+            // --- 2. Identificador del personaje (lo que queda en argsFiltrados) ---
+            if (argsFiltrados.length === 0) {
                 return client.reply(m.chat, formatMessage('ꕥ Ingresa el ID o nombre del personaje que deseas quitar.\nEjemplo: #quitarwaifu 100001 @usuario'), m);
             }
 
-            const identifier = args.join(' ').trim();
+            const identifier = argsFiltrados.join(' ').trim();
 
             await m.react('🕒');
 
