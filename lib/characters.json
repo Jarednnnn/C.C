@@ -23104,17 +23104,17 @@
       {"id": "330465982204", "name": "Manaka Sajyou", "gender": "Mujer", "tags": ["manaka"], "value": 100},
       {"id": "330465982205", "name": "Ayaka Sajyou", "gender": "Mujer", "tags": ["ayaka"], "value": 100},
       {"id": "330465982206", "name": "Elsa (Fate)", "gender": "Mujer", "tags": ["elsa"], "value": 100},
-      {"id": "330465982207", "name": "Tatsumi Kitano", "gender": "Hombre", "tags": ["tatsumi"], "value": 100},
-      {"id": "330465982208", "name": "Jester Karture", "gender": "Hombre", "tags": ["jester"], "value": 100},
+      {"id": "330465982207", "name": "Tatsumi Kitano", "gender": "Hombre", "tags": ["tatsumi fate"], "value": 100},
+      {"id": "330465982208", "name": "Jester Karture", "gender": "Hombre", "tags": ["jester fate"], "value": 100},
       {"id": "330465982209", "name": "Faldeus Dioland", "gender": "Hombre", "tags": ["faldeus"], "value": 100},
-      {"id": "330465982210", "name": "Orlando Reeve", "gender": "Hombre", "tags": ["orlando"], "value": 100},
-      {"id": "330465982211", "name": "Danzō", "gender": "Mujer", "tags": ["danzo"], "value": 100},
-      {"id": "330465982212", "name": "Fuuma Kotarō", "gender": "Hombre", "tags": ["fuuma"], "value": 100},
-      {"id": "330465982213", "name": "Mochizuki Chiyome", "gender": "Mujer", "tags": ["chiyome"], "value": 100},
-      {"id": "330465982214", "name": "Kato Danzo", "gender": "Mujer", "tags": ["kato_danzo"], "value": 100},
-      {"id": "330465982215", "name": "Ishikawa Goemon", "gender": "Hombre", "tags": ["goemon"], "value": 100},
-      {"id": "330465982216", "name": "Sarutobi Sasuke", "gender": "Hombre", "tags": ["sasuke"], "value": 100},
-      {"id": "330465982217", "name": "Kirigakure Saizō", "gender": "Hombre", "tags": ["saizo"], "value": 100}
+      {"id": "330465982210", "name": "Orlando Reeve", "gender": "Hombre", "tags": ["orlando fate"], "value": 100},
+      {"id": "330465982211", "name": "Danzō", "gender": "Mujer", "tags": ["danzo fate"], "value": 100},
+      {"id": "330465982212", "name": "Fuuma Kotarō", "gender": "Hombre", "tags": ["fuuma fate"], "value": 100},
+      {"id": "330465982213", "name": "Mochizuki Chiyome", "gender": "Mujer", "tags": ["chiyome fate"], "value": 100},
+      {"id": "330465982214", "name": "Kato Danzo", "gender": "Mujer", "tags": ["kato_danzo fate"], "value": 100},
+      {"id": "330465982215", "name": "Ishikawa Goemon", "gender": "Hombre", "tags": ["goemon fate"], "value": 100},
+      {"id": "330465982216", "name": "Sarutobi Sasuke", "gender": "Hombre", "tags": ["sasuke sarutobi fate"], "value": 100},
+      {"id": "330465982217", "name": "Kirigakure Saizō", "gender": "Hombre", "tags": ["saizo fate"], "value": 100}
     ]
   }
 }
