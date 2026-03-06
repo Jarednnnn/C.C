@@ -1,10 +1,11 @@
 import yts from 'yt-search'
 import fetch from 'node-fetch'
 import { getBuffer } from '../../lib/message.js'
-import ytdl from 'ytdl-core'           // <-- AÑADIDO
-import fs from 'fs'                     // <-- AÑADIDO
-import path from 'path'                 // <-- AÑADIDO
-import { fileURLToPath } from 'url'     // <-- AÑADIDO
+import ytdl from 'ytdl-core'
+import ffmpeg from 'fluent-ffmpeg'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const tmpDir = path.join(__dirname, '../../tmp')
@@ -15,7 +16,7 @@ if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true })
 const isYTUrl = (url) => /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/i.test(url)
 
 export default {
-  command: ['play2', 'mp4', 'ytmp4', 'ytvideo', 'playvideo'],
+  command: ['play2', 'mp4', 'ytmp4', 'ytvideo', 'playvideo'], // Ajusta según tu comando de audio
   category: 'downloader',
   run: async (client, m, args, usedPrefix, command) => {
     try {
@@ -52,23 +53,34 @@ export default {
 
       // Intentar con APIs externas
       let video = await getVideoFromApis(url)
-      
+
       // Si las APIs fallan, usar ytdl-core como fallback
       if (!video?.url) {
         console.log('API falló, usando ytdl-core como fallback')
         video = await downloadWithYtdl(url)
         if (!video?.url) {
-          return m.reply('《✧》 No se pudo descargar el *video*, intenta más tarde.')
+          return m.reply('《✧》 No se pudo descargar el *audio*, intenta más tarde.')
         }
       }
 
-      const videoBuffer = await getBuffer(video.url)
-      await client.sendMessage(m.chat, { video: videoBuffer, fileName: `${title || 'video'}.mp4`, mimetype: 'video/mp4' }, { quoted: m })
+      // Obtener buffer (acepta tanto URL como data URL)
+      const audioBuffer = await getBuffer(video.url)
+
+      // Enviar audio
+      await client.sendMessage(m.chat, { 
+        audio: audioBuffer, 
+        mimetype: 'audio/mpeg',
+        fileName: `${title || 'audio'}.mp3`
+      }, { quoted: m })
+
     } catch (e) {
+      console.error('Error en comando:', e)
       await m.reply(`> An unexpected error occurred while executing command *${usedPrefix + command}*. Please try again or contact support if the issue persists.\n> [Error: *${e.message}*]`)
     }
   }
 }
+
+// ========== FUNCIONES AUXILIARES ==========
 
 async function getVideoFromApis(url) {
   const apis = [
@@ -93,7 +105,7 @@ async function getVideoFromApis(url) {
   return null
 }
 
-// ==================== NUEVA FUNCIÓN FALLBACK ====================
+// ========== FALLBACK CON YTDL-CORE (AUDIO MP3) ==========
 async function downloadWithYtdl(url) {
   try {
     // Validar que sea una URL de YouTube válida
@@ -102,48 +114,57 @@ async function downloadWithYtdl(url) {
       return null
     }
 
-    // Obtener información del video (opcional, para el nombre)
+    // Obtener información del video
     const info = await ytdl.getInfo(url)
     const title = info.videoDetails.title.replace(/[^\w\s]/gi, '') // limpiar nombre
 
-    // Elegir formato de video con calidad baja para evitar archivos muy grandes
+    // Elegir formato de audio (calidad baja para menor tamaño)
     const format = ytdl.chooseFormat(info.formats, { 
-      quality: 'lowest',
-      filter: 'videoandaudio' 
+      quality: 'lowestaudio',
+      filter: 'audioonly'
     })
 
     if (!format) {
-      console.log('No se encontró formato de video')
+      console.log('No se encontró formato de audio')
       return null
     }
 
-    // Descargar el video a un archivo temporal
-    const fileName = `yt_fallback_${Date.now()}.mp4`
+    // Archivo temporal
+    const fileName = `yt_fallback_${Date.now()}.mp3`
     const filePath = path.join(tmpDir, fileName)
-    
-    const stream = ytdl(url, { format })
-    const writeStream = fs.createWriteStream(filePath)
-    
+
+    // Descargar y convertir a MP3 con ffmpeg
     await new Promise((resolve, reject) => {
-      stream.pipe(writeStream)
-      writeStream.on('finish', resolve)
-      writeStream.on('error', reject)
+      const stream = ytdl(url, { format })
+      ffmpeg(stream)
+        .audioBitrate(128)            // calidad aceptable
+        .toFormat('mp3')
+        .on('end', resolve)
+        .on('error', reject)
+        .save(filePath)
     })
 
-    // Verificar tamaño (máximo 100MB para WhatsApp)
+    // Verificar tamaño (máximo 100MB)
     const stats = fs.statSync(filePath)
     const fileSizeMB = stats.size / (1024 * 1024)
     if (fileSizeMB > 100) {
       fs.unlinkSync(filePath)
-      console.log('Video demasiado grande (>100MB)')
+      console.log('Audio demasiado grande (>100MB)')
       return null
     }
 
-    // Leer el archivo y luego eliminarlo
+    // Leer archivo y eliminarlo
     const buffer = fs.readFileSync(filePath)
-    fs.unlinkSync(filePath) // eliminar archivo temporal
+    fs.unlinkSync(filePath)
 
-    return { url: buffer, api: 'ytdl-core (fallback)' }
+    // Convertir buffer a data URL (para que getBuffer lo entienda)
+    const base64 = buffer.toString('base64')
+    const dataUrl = `data:audio/mpeg;base64,${base64}`
+
+    return { 
+      url: dataUrl,
+      api: 'ytdl-core (fallback)' 
+    }
   } catch (err) {
     console.error('Error en ytdl-core:', err)
     return null
