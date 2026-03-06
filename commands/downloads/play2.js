@@ -1,22 +1,11 @@
 import yts from 'yt-search'
 import fetch from 'node-fetch'
 import { getBuffer } from '../../lib/message.js'
-import ytdl from 'ytdl-core'
-import ffmpeg from 'fluent-ffmpeg'
-import fs from 'fs'
-import path from 'path'
-import { fileURLToPath } from 'url'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const tmpDir = path.join(__dirname, '../../tmp')
-
-// Crear carpeta tmp si no existe
-if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true })
 
 const isYTUrl = (url) => /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/i.test(url)
 
 export default {
-  command: ['play2', 'mp4', 'ytmp4', 'ytvideo', 'playvideo'], // Ajusta según tu comando de audio
+  command: ['play2', 'mp4', 'ytmp4', 'ytvideo', 'playvideo'],
   category: 'downloader',
   run: async (client, m, args, usedPrefix, command) => {
     try {
@@ -48,39 +37,18 @@ export default {
           }
         }
       } catch (err) {
-        // Ignorar error de búsqueda
       }
-
-      // Intentar con APIs externas
-      let video = await getVideoFromApis(url)
-
-      // Si las APIs fallan, usar ytdl-core como fallback
+      const video = await getVideoFromApis(url)
       if (!video?.url) {
-        console.log('API falló, usando ytdl-core como fallback')
-        video = await downloadWithYtdl(url)
-        if (!video?.url) {
-          return m.reply('《✧》 No se pudo descargar el *audio*, intenta más tarde.')
-        }
+        return m.reply('《✧》 No se pudo descargar el *video*, intenta más tarde.')
       }
-
-      // Obtener buffer (acepta tanto URL como data URL)
-      const audioBuffer = await getBuffer(video.url)
-
-      // Enviar audio
-      await client.sendMessage(m.chat, { 
-        audio: audioBuffer, 
-        mimetype: 'audio/mpeg',
-        fileName: `${title || 'audio'}.mp3`
-      }, { quoted: m })
-
+      const videoBuffer = await getBuffer(video.url)
+      await client.sendMessage(m.chat, { video: videoBuffer, fileName: `${title || 'video'}.mp4`, mimetype: 'video/mp4' }, { quoted: m })
     } catch (e) {
-      console.error('Error en comando:', e)
       await m.reply(`> An unexpected error occurred while executing command *${usedPrefix + command}*. Please try again or contact support if the issue persists.\n> [Error: *${e.message}*]`)
     }
   }
 }
-
-// ========== FUNCIONES AUXILIARES ==========
 
 async function getVideoFromApis(url) {
   const apis = [
@@ -103,70 +71,4 @@ async function getVideoFromApis(url) {
     await new Promise(resolve => setTimeout(resolve, 500))
   }
   return null
-}
-
-// ========== FALLBACK CON YTDL-CORE (AUDIO MP3) ==========
-async function downloadWithYtdl(url) {
-  try {
-    // Validar que sea una URL de YouTube válida
-    if (!ytdl.validateURL(url)) {
-      console.log('URL no válida para ytdl-core')
-      return null
-    }
-
-    // Obtener información del video
-    const info = await ytdl.getInfo(url)
-    const title = info.videoDetails.title.replace(/[^\w\s]/gi, '') // limpiar nombre
-
-    // Elegir formato de audio (calidad baja para menor tamaño)
-    const format = ytdl.chooseFormat(info.formats, { 
-      quality: 'lowestaudio',
-      filter: 'audioonly'
-    })
-
-    if (!format) {
-      console.log('No se encontró formato de audio')
-      return null
-    }
-
-    // Archivo temporal
-    const fileName = `yt_fallback_${Date.now()}.mp3`
-    const filePath = path.join(tmpDir, fileName)
-
-    // Descargar y convertir a MP3 con ffmpeg
-    await new Promise((resolve, reject) => {
-      const stream = ytdl(url, { format })
-      ffmpeg(stream)
-        .audioBitrate(128)            // calidad aceptable
-        .toFormat('mp3')
-        .on('end', resolve)
-        .on('error', reject)
-        .save(filePath)
-    })
-
-    // Verificar tamaño (máximo 100MB)
-    const stats = fs.statSync(filePath)
-    const fileSizeMB = stats.size / (1024 * 1024)
-    if (fileSizeMB > 100) {
-      fs.unlinkSync(filePath)
-      console.log('Audio demasiado grande (>100MB)')
-      return null
-    }
-
-    // Leer archivo y eliminarlo
-    const buffer = fs.readFileSync(filePath)
-    fs.unlinkSync(filePath)
-
-    // Convertir buffer a data URL (para que getBuffer lo entienda)
-    const base64 = buffer.toString('base64')
-    const dataUrl = `data:audio/mpeg;base64,${base64}`
-
-    return { 
-      url: dataUrl,
-      api: 'ytdl-core (fallback)' 
-    }
-  } catch (err) {
-    console.error('Error en ytdl-core:', err)
-    return null
-  }
 }
