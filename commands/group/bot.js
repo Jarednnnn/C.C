@@ -10,58 +10,35 @@ export default {
     const chatId = m.chat
 
     try {
-      console.log('=================================')
-      console.log('Comando #bot iniciado')
-      console.log('Sender original:', sender)
-      console.log('Chat ID:', chatId)
-
       const groupMetadata = await client.groupMetadata(chatId)
-      console.log('Metadatos obtenidos, participantes:', groupMetadata.participants.length)
-
       let userIsAdmin = false
-      let foundUser = false
+      let userFound = null
 
       for (const participant of groupMetadata.participants) {
-        const originalId = participant.id
-        const realId = await resolveLidToRealJid(originalId, client, chatId)
-        console.log(`Participante: original=${originalId}, realId=${realId}, admin=${participant.admin}`)
-        
+        const realId = await resolveLidToRealJid(participant.id, client, chatId)
         if (realId === sender) {
-          foundUser = true
+          userFound = participant
           userIsAdmin = !!participant.admin
-          console.log(`→ ¡Coincide con el sender! userIsAdmin=${userIsAdmin}`)
           break
         }
       }
 
-      if (!foundUser) {
-        console.log('No se encontró al sender en la lista de participantes.')
-        // Intentar buscar por número sin dominio
-        const senderNumber = sender.split('@')[0]
-        for (const participant of groupMetadata.participants) {
-          const realId = await resolveLidToRealJid(participant.id, client, chatId)
-          if (realId.split('@')[0] === senderNumber) {
-            foundUser = true
-            userIsAdmin = !!participant.admin
-            console.log(`→ Coincidencia por número! realId=${realId}, admin=${participant.admin}`)
-            break
-          }
-        }
+      console.log('=== DEBUG BOT ===')
+      console.log('Usuario:', sender)
+      console.log('Participante encontrado:', userFound ? 'Sí' : 'No')
+      if (userFound) {
+        console.log('admin en metadata:', userFound.admin)
+        console.log('admin booleano:', !!userFound.admin)
       }
+      console.log('userIsAdmin:', userIsAdmin)
 
-      console.log(`Resultado final: foundUser=${foundUser}, userIsAdmin=${userIsAdmin}`)
-
-      if (!foundUser) {
-        console.log('No se pudo encontrar al usuario en el grupo.')
-        return m.reply('《✧》 No se pudo verificar tu membresía en el grupo.')
+      if (!userFound) {
+        return m.reply('No se pudo verificar tu membresía en el grupo.')
       }
 
       if (!userIsAdmin) {
-        console.log('El usuario no es admin.')
         return m.reply('《✧》 Solo los administradores del grupo pueden usar este comando.')
       }
-
-      console.log('Usuario es admin, continuando...')
 
       if (args[0] === 'off') {
         if (estado) return m.reply('《✧》 El *Bot* ya estaba *desactivado* en este grupo.')
