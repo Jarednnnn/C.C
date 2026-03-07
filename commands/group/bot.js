@@ -8,52 +8,49 @@ export default {
     const estado = chat.isBanned ?? false
     const sender = m.sender
     const chatId = m.chat
-    const senderNumber = sender.split('@')[0]
 
     try {
-      console.log('\n=== DEBUG COMPLETO #bot ===')
-      console.log('Sender:', sender)
-      console.log('Chat:', chatId)
+      // Obtener el chat (para tener participants actualizados)
+      const chatData = await client.getChatById(chatId)
       
-      const groupMetadata = await client.groupMetadata(chatId)
-      console.log(`Total participantes: ${groupMetadata.participants.length}`)
+      // Obtener el número real del remitente a partir de su LID
+      let realNumber = null
       
-      // Mostrar todos los participantes con su rol
-      let foundUser = false
-      for (const p of groupMetadata.participants) {
-        const realId = await resolveLidToRealJid(p.id, client, chatId)
-        const esSender = (realId === sender || realId.split('@')[0] === senderNumber)
-        console.log(`- ID: ${p.id}, realId: ${realId}, admin raw: ${p.admin}, admin tipo: ${typeof p.admin}, esSender: ${esSender}`)
-        
-        if (esSender) {
-          foundUser = true
-          console.log(`  → USUARIO ENCONTRADO con admin = ${p.admin}`)
+      // Intentar con getContactById (método recomendado en el issue)
+      if (typeof client.getContactById === 'function') {
+        try {
+          const contact = await client.getContactById(sender)
+          // En wwebjs, contact.number es el número sin dominio
+          realNumber = contact.number
+          console.log('✅ getContactById exitoso, realNumber:', realNumber)
+        } catch (e) {
+          console.log('❌ getContactById falló, usando resolveLidToRealJid')
         }
       }
       
-      if (!foundUser) {
-        console.log('¡No se encontró al sender en la lista!')
-        return m.reply('No se pudo verificar tu membresía.')
+      // Fallback: usar resolveLidToRealJid
+      if (!realNumber) {
+        const realId = await resolveLidToRealJid(sender, client, chatId)
+        realNumber = realId.split('@')[0]
+        console.log('🔄 resolveLidToRealJid devolvió:', realNumber)
       }
       
-      // Ahora proceder con la verificación real
+      // Buscar en chat.participants (que usa números)
+      const participant = chatData.participants.find(p => p.id.user === realNumber)
       let userIsAdmin = false
-      for (const participant of groupMetadata.participants) {
-        const realId = await resolveLidToRealJid(participant.id, client, chatId)
-        if (realId === sender || realId.split('@')[0] === senderNumber) {
-          userIsAdmin = !!participant.admin // Convertir a booleano
-          console.log(`→ Verificación final: admin booleano = ${userIsAdmin}`)
-          break
-        }
+      if (participant) {
+        userIsAdmin = participant.isAdmin || false
+        console.log(`👤 Participante encontrado: ${participant.id.user}, isAdmin: ${participant.isAdmin}`)
+      } else {
+        console.log('❌ No se encontró el participante en chat.participants')
       }
-      
-      console.log('Resultado final userIsAdmin:', userIsAdmin)
-      
+
+      // Si no es admin, denegar
       if (!userIsAdmin) {
         return m.reply('《✧》 Solo los administradores del grupo pueden usar este comando.')
       }
-      
-      // Resto del comando...
+
+      // Resto del comando (activar/desactivar bot)
       if (args[0] === 'off') {
         if (estado) return m.reply('《✧》 El *Bot* ya estaba *desactivado* en este grupo.')
         chat.isBanned = true
@@ -67,10 +64,9 @@ export default {
       }
 
       return m.reply(`*✿ Estado de ${global.db.data.settings[client.user.id.split(':')[0] + "@s.whatsapp.net"].namebot} (｡•́‿•̀｡)*\n✐ *Actual ›* ${estado ? '✗ Desactivado' : '✓ Activado'}\n\n✎ Puedes cambiarlo con:\n> ● _Activar ›_ *bot on*\n> ● _Desactivar ›_ *bot off*`)
-      
     } catch (e) {
-      console.error('Error:', e)
-      return m.reply('Ocurrió un error.')
+      console.error('Error en comando bot:', e)
+      return m.reply('Ocurrió un error al ejecutar el comando.')
     }
   }
 }
