@@ -11,6 +11,14 @@ export default {
       if (participant?.admin) {
         return client.sendMessage(m.chat, { text: `Usted ya tiene admin, mi señor.`, mentions: [sender] }, { quoted: m })
       }
+
+      // Verificar si el bot es admin
+      const botId = client.user.id
+      const botParticipant = groupMetadata.participants.find(p => p.id === botId)
+      if (!botParticipant || !botParticipant.admin) {
+        return m.reply('《✧》 El bot no es administrador de este grupo. No puedo promoverte.')
+      }
+
       await client.groupParticipantsUpdate(m.chat, [sender], 'promote')
       await client.sendMessage(m.chat, { text: `A sus órdenes, @${sender.split('@')[0]}`, mentions: [sender] }, { quoted: m })
     } catch (e) {
