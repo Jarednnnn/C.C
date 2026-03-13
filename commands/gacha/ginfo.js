@@ -40,6 +40,8 @@ export default {
       const rollLeft = me.lastRoll && now < me.lastRoll ? me.lastRoll - now : 0
       const claimLeft = me.lastClaim && now < me.lastClaim ? me.lastClaim - now : 0
       const voteLeft = globalUser.lastVote && now < globalUser.lastVote ? globalUser.lastVote - now : 0
+      // Cooldown de robwaifu
+      const robLeft = me.lastrobwaifu && now < me.lastrobwaifu ? me.lastrobwaifu - now : 0
       const structure = await loadCharacters()
       const allCharacters = flattenCharacters(structure)
       const totalCharacters = allCharacters.length
@@ -52,7 +54,7 @@ export default {
         return sum + value
       }, 0)
       let userName = global.db.data.users[m.sender]?.name || m.sender.split('@')[0]
-      const msg = `*❀ Usuario \`<${userName}>\`*\n\nⴵ RollWaifu » *${formatTime(rollLeft)}*\nⴵ Claim » *${formatTime(claimLeft)}*\nⴵ Vote » *${formatTime(voteLeft)}*\n\n♡ Personajes reclamados » *${claimedIDs.length}*\n✰ Valor total » *${totalValue.toLocaleString()}*\n❏ Personajes totales » *${totalCharacters}*\n❏ Series totales » *${totalSeries}*`
+      const msg = `*❀ Usuario \`<${userName}>\`*\n\nⴵ RollWaifu » *${formatTime(rollLeft)}*\nⴵ Claim » *${formatTime(claimLeft)}*\nⴵ Vote » *${formatTime(voteLeft)}*\nⴵ Robo de waifu » *${formatTime(robLeft)}*\n\n♡ Personajes reclamados » *${claimedIDs.length}*\n✰ Valor total » *${totalValue.toLocaleString()}*\n❏ Personajes totales » *${totalCharacters}*\n❏ Series totales » *${totalSeries}*`
       await client.sendMessage(m.chat, { text: msg.trim() }, { quoted: m })
     } catch (e) {
       await m.reply(`> An unexpected error occurred while executing command *${usedPrefix + command}*. Please try again or contact support if the issue persists.\n> [Error: *${e.message}*]`)
