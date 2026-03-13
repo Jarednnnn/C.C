@@ -15,6 +15,8 @@ import { smsg } from "./lib/message.js";
 import db from "./lib/system/database.js";
 import { startSubBot } from './lib/subs.js';
 import { exec, execSync } from "child_process";
+// <-- NUEVO: Importar la función de actualización de grupos
+import { updateBotGroups } from './lib/system/groupUpdater.js';
 
 const log = {
   info: (msg) => console.log(chalk.bgBlue.white.bold(`INFO`), chalk.white(msg)),
@@ -213,6 +215,11 @@ async function startBot() {
          const userJid = jidNormalizedUser(client.user.id)
          const userName = client.user.name || "Desconocido"
          console.log(chalk.green.bold(`[ ✿ ]  Conectado a: ${userName}`))
+         
+         // <-- NUEVO: Actualizar grupos al conectar el bot principal
+         await updateBotGroups(client);
+         // Actualizar cada 30 minutos (1800000 ms)
+         setInterval(() => updateBotGroups(client), 30 * 60 * 1000);
     }
     if (isNewLogin) {
       log.info("Nuevo dispositivo detectado")
