@@ -128,11 +128,11 @@ export default {
 
       const reto = chat.retoPendiente
 
-      // Obtener el número del sender (parte antes del @)
+      // Extraer solo la parte numérica del sender y del oponente
       const senderNum = m.sender.split('@')[0]
       const oponenteNum = reto.oponente.split('@')[0]
 
-      // Comparar solo números
+      // Comparar por número (ignorando posibles sufijos como :10)
       if (senderNum !== oponenteNum) {
         const oponenteName = global.db.data.users?.[reto.oponente]?.name || oponenteNum
         return m.reply(`ꕥ Solo *${oponenteName}* puede aceptar este reto.`)
