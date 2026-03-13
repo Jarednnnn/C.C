@@ -20,7 +20,7 @@ export default {
 
     const reto = chat.retoPendiente
 
-    // Obtener el JID real del usuario que ejecuta el comando (por si acaso es LID)
+    // Obtener el JID real del usuario que ejecuta el comando (por si es LID)
     const senderReal = await resolveLidToRealJid(m.sender, client, m.chat)
 
     // Extraer solo la parte numérica (antes del @) para comparar
@@ -62,7 +62,7 @@ export default {
 }
 
 /**
- * Función que inicia la carrera (copiada del código anterior)
+ * Función que inicia la carrera
  */
 async function iniciarCarrera(client, chatId, userIdAceptante, reto, monedas, dbData) {
   const chat = dbData.chats[chatId]
