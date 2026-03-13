@@ -100,7 +100,8 @@ export default {
       const nRetador = obtenerNombre(retador)
       const nOponente = obtenerNombre(oponente)
 
-      const mensaje = `「✿」 *${nRetador}*, ¿confirmas retar a *${nOponente}*?\n\n❏ Apuesta: *${apuesta} ${monedas}* cada uno\n\n✐ Para aceptar escribe *${usedPrefix}aceptarcarrera*\n⏳ Este reto expirará en 60 segundos.`
+      // Mensaje sin el emoji de arena, usando ❏ para el tiempo
+      const mensaje = `「✿」 *${nRetador}*, ¿confirmas retar a *${nOponente}*?\n\n❏ Apuesta: *${apuesta} ${monedas}* cada uno\n\n✐ Para aceptar escribe *${usedPrefix}aceptarcarrera*\n❏ Expira en: 60 segundos`
       await client.sendMessage(m.chat, { text: mensaje, mentions: [retador, oponente] }, { quoted: m })
     }
 
@@ -111,7 +112,7 @@ export default {
       const quienAcepta = await obtenerJidReal(m.sender, m.text, m.chat)
       const reto = chat.retoPendiente
 
-      // Verificación restaurada: solo el oponente puede aceptar
+      // Verificación: solo el oponente puede aceptar
       if (quienAcepta !== reto.oponente) {
         const nombreOponente = obtenerNombre(reto.oponente)
         return m.reply(`ꕥ Solo *${nombreOponente}* puede aceptar este reto.`)
