@@ -20,21 +20,29 @@ export default {
 
     const reto = chat.retoPendiente
 
-    // Obtener el JID real del usuario que ejecuta el comando (por si es LID)
+    // Obtener el JID real del usuario que ejecuta el comando
     const senderReal = await resolveLidToRealJid(m.sender, client, m.chat)
+    console.log('=== DEBUG ACEPTARCARRERA ===')
+    console.log('m.sender original:', m.sender)
+    console.log('senderReal después de resolveLidToRealJid:', senderReal)
+    console.log('reto.oponente guardado:', reto.oponente)
+    console.log('senderNum (split):', senderReal.split('@')[0])
+    console.log('oponenteNum (split):', reto.oponente.split('@')[0])
 
-    // Extraer solo la parte numérica (antes del @) para comparar
+    // Extraer solo la parte numérica
     const senderNum = senderReal.split('@')[0]
     const oponenteNum = reto.oponente.split('@')[0]
 
     if (senderNum !== oponenteNum) {
       const oponenteName = global.db.data.users?.[reto.oponente]?.name || oponenteNum
+      console.log('❌ No coinciden: se esperaba', oponenteNum, 'pero se recibió', senderNum)
       return m.reply(`ꕥ Solo *${oponenteName}* puede aceptar este reto.`)
     }
 
+    console.log('✅ Coinciden, continuando...')
+
     // Verificar expiración
     if (reto.expiracion < Date.now()) {
-      // Devolver fondos al retador
       if (chat.users[reto.retador]) {
         chat.users[reto.retador].coins += reto.apuestaRetador
       }
@@ -42,28 +50,18 @@ export default {
       return m.reply('ꕥ El reto de carrera ha expirado.')
     }
 
-    // Verificar fondos del aceptante
     if (user.coins < reto.apuestaRetador) {
       return m.reply(`ꕥ No tienes suficientes ${monedas} para igualar la apuesta de *${reto.apuestaRetador} ${monedas}*.`)
     }
 
-    // Restar apuesta del aceptante
     user.coins -= reto.apuestaRetador
-
-    // Cancelar timeout de expiración
     clearTimeout(reto.timeout)
-
-    // Eliminar reto pendiente
     delete chat.retoPendiente
 
-    // Iniciar la carrera
     await iniciarCarrera(client, m.chat, m.sender, reto, monedas, global.db.data)
   }
 }
 
-/**
- * Función que inicia la carrera
- */
 async function iniciarCarrera(client, chatId, userIdAceptante, reto, monedas, dbData) {
   const chat = dbData.chats[chatId]
   const users = chat.users
