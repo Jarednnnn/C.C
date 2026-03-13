@@ -1,5 +1,6 @@
 // Almacén global de timeouts
 global.carreraTimeouts = global.carreraTimeouts || {}
+import { resolveLidToRealJid } from '../../lib/utils.js'
 
 export default {
   command: ['carrera', 'aceptarcarrera'],
@@ -15,37 +16,18 @@ export default {
       return m.reply(`ꕥ Los comandos de *Economía* están desactivados.\n» *${usedPrefix}economy on*`)
     }
 
-    // --- FUNCIÓN DE RESOLUCIÓN DE JID REAL (basada en participantes del grupo) ---
-    const obtenerJidReal = async (id) => {
-      if (!id) return null
-      // Extraemos la parte numérica (sin @ ni :)
-      const simpleId = id.split('@')[0].split(':')[0]
-      try {
-        const metadata = await client.groupMetadata(m.chat)
-        const participant = metadata.participants.find(p => 
-          p.id.includes(simpleId) || (p.lid && p.lid.includes(simpleId))
-        )
-        // Si encontramos al participante, devolvemos su JID completo
-        if (participant) return participant.id.split('@')[0] + '@s.whatsapp.net'
-        // Si no, asumimos que el simpleId es el número y construimos el JID
-        return simpleId + '@s.whatsapp.net'
-      } catch {
-        return simpleId + '@s.whatsapp.net'
-      }
-    }
-
     // =================== COMANDO #carrera ===================
     if (command === 'carrera') {
       if (chat.carreraActiva) return m.reply('ꕥ Ya hay una carrera en curso.')
 
-      // Obtener mencionado o citado (estilo giveallharem)
+      // Obtener mencionado o citado
       const mentionedJid = m.mentionedJid
       const rawOpponent = mentionedJid[0] || (m.quoted ? m.quoted.sender : null)
       if (!rawOpponent) return m.reply(`ꕥ Menciona a alguien.\n> Ejemplo: *${usedPrefix}carrera @usuario 200*`)
 
-      // Resolvemos ambos a JID real
-      const retador = await obtenerJidReal(m.sender)
-      const oponente = await obtenerJidReal(rawOpponent)
+      // Resolver a JID real
+      const retador = await resolveLidToRealJid(m.sender, client, m.chat)
+      const oponente = await resolveLidToRealJid(rawOpponent, client, m.chat)
 
       if (retador === oponente) return m.reply('ꕥ No puedes jugar contra ti mismo.')
 
@@ -82,7 +64,7 @@ export default {
       const nRetador = global.db.data.users[retador]?.name || retador.split('@')[0]
       const nOponente = global.db.data.users[oponente]?.name || oponente.split('@')[0]
 
-      // Mensaje con decoración estilo giveallharem
+      // Mensaje con decoración
       const mensaje = `「✿」 *${nRetador}*, ¿confirmas retar a *${nOponente}*?\n\n❏ Apuesta: *${apuesta} ${monedas}* cada uno\n\n✐ Para aceptar escribe *${usedPrefix}aceptarcarrera*`
       await client.sendMessage(m.chat, { text: mensaje, mentions: [retador, oponente] }, { quoted: m })
     }
@@ -91,13 +73,12 @@ export default {
     else if (command === 'aceptarcarrera') {
       if (!chat.retoPendiente) return m.reply('ꕥ No hay retos pendientes.')
 
-      // Resolvemos el ID del que acepta
-      const quienAcepta = await obtenerJidReal(m.sender)
+      // Resolver el ID del que acepta
+      const quienAcepta = await resolveLidToRealJid(m.sender, client, m.chat)
       const reto = chat.retoPendiente
 
-      // Comparación usando los números (sin @) para mayor seguridad
-      if (quienAcepta.split('@')[0] !== reto.oponente.split('@')[0]) {
-        // Mostramos el nombre del oponente si está disponible
+      // Comparar directamente los JIDs completos
+      if (quienAcepta !== reto.oponente) {
         const nombreOponente = global.db.data.users[reto.oponente]?.name || reto.oponente.split('@')[0]
         return m.reply(`ꕥ Solo *${nombreOponente}* puede aceptar este reto.`)
       }
