@@ -17,12 +17,11 @@ export default {
         return m.reply('ꕥ Ya hay una carrera en curso en este grupo. Espera a que termine.')
       }
 
-      // Obtener mención
-      const mentioned = m.message?.extendedTextMessage?.contextInfo?.mentionedJid
-      if (!mentioned || mentioned.length === 0) {
+      // Obtener mención (usando m.mentionedJid como en kick)
+      let opponentId = m.mentionedJid[0] ? m.mentionedJid[0] : (m.quoted ? m.quoted.sender : null)
+      if (!opponentId) {
         return m.reply(`ꕥ Debes mencionar al usuario con quien quieres competir.\n> Ejemplo: *${usedPrefix}carrera @usuario 200*`)
       }
-      const opponentId = mentioned[0]
       if (opponentId === m.sender) {
         return m.reply('ꕥ No puedes retarte a ti mismo. Menciona a otro usuario.')
       }
@@ -30,7 +29,6 @@ export default {
       // Buscar la apuesta en cualquier argumento
       let apuesta = null
       for (let arg of args) {
-        // Limpiar el argumento: quitar comas y puntos
         let limpio = arg.replace(/[,.]/g, '')
         let num = parseInt(limpio)
         if (!isNaN(num) && num >= 100) {
@@ -45,12 +43,11 @@ export default {
       // Asegurar que el oponente existe
       if (!chat.users[opponentId]) chat.users[opponentId] = { coins: 0 }
 
-      // Verificar fondos del retador
       if (user.coins < apuesta) {
         return m.reply(`ꕥ No tienes suficientes ${monedas}. Necesitas *${apuesta} ${monedas}*.`)
       }
 
-      // Manejo de reto pendiente previo
+      // Limpiar retos expirados
       if (chat.retoPendiente) {
         if (chat.retoPendiente.expiracion < Date.now()) {
           const retadorAnterior = chat.retoPendiente.retador
@@ -63,10 +60,8 @@ export default {
         }
       }
 
-      // Restar apuesta al retador
       user.coins -= apuesta
 
-      // Crear reto pendiente
       const reto = {
         retador: m.sender,
         oponente: opponentId,
@@ -86,9 +81,9 @@ export default {
       }, 60000)
       chat.retoPendiente.timeout = timeout
 
-      // Obtener nombres (mostrar solo dígitos si no hay nombre personalizado)
-      const retadorName = global.db.data.users?.[m.sender]?.name || m.sender.split('@')[0].replace(/\D/g, '')
-      const oponenteName = global.db.data.users?.[opponentId]?.name || opponentId.split('@')[0].replace(/\D/g, '')
+      // Nombres
+      const retadorName = global.db.data.users?.[m.sender]?.name || m.sender.split('@')[0]
+      const oponenteName = global.db.data.users?.[opponentId]?.name || opponentId.split('@')[0]
 
       const mensajeReto = `╭┈ࠢ͜┅ࠦ͜͜╾݊͜─ׄ͜─֬͜─֟͜─֫͜─ׄ͜─݊͜┅ࠡ͜͜┈࠭͜
 │        𐔌 RETO DE CARRERA 𐦯
@@ -107,25 +102,19 @@ export default {
 
     // =================== COMANDO #aceptarcarrera ===================
     else if (command === 'aceptarcarrera') {
-      // Verificar que hay un reto pendiente
       if (!chat.retoPendiente) {
         return m.reply('ꕥ No hay ningún reto de carrera pendiente en este grupo.')
       }
 
       const reto = chat.retoPendiente
 
-      // Normalizar números: extraer solo dígitos para comparar
-      const senderNumber = m.sender.split('@')[0].replace(/\D/g, '')
-      const opponentNumber = reto.oponente.split('@')[0].replace(/\D/g, '')
-
-      if (senderNumber !== opponentNumber) {
-        const oponenteName = global.db.data.users?.[reto.oponente]?.name || reto.oponente.split('@')[0].replace(/\D/g, '')
+      // Comparar directamente los JIDs completos (sin extraer números)
+      if (m.sender !== reto.oponente) {
+        const oponenteName = global.db.data.users?.[reto.oponente]?.name || reto.oponente.split('@')[0]
         return m.reply(`ꕥ Solo *${oponenteName}* puede aceptar este reto.`)
       }
 
-      // Verificar que el reto no haya expirado
       if (reto.expiracion < Date.now()) {
-        // Devolver fondos al retador
         if (chat.users[reto.retador]) {
           chat.users[reto.retador].coins += reto.apuestaRetador
         }
@@ -133,29 +122,18 @@ export default {
         return m.reply('ꕥ El reto de carrera ha expirado.')
       }
 
-      // Verificar fondos del aceptante
       if (user.coins < reto.apuestaRetador) {
         return m.reply(`ꕥ No tienes suficientes ${monedas} para igualar la apuesta de *${reto.apuestaRetador} ${monedas}*.`)
       }
 
-      // Restar apuesta del aceptante
       user.coins -= reto.apuestaRetador
-
-      // Cancelar el timeout de expiración
       clearTimeout(reto.timeout)
-
-      // Eliminar el reto pendiente
       delete chat.retoPendiente
-
-      // Iniciar la carrera
       await iniciarCarrera(client, m.chat, m.sender, reto, monedas, global.db.data)
     }
   }
 }
 
-/**
- * Inicia la carrera entre retador y oponente
- */
 async function iniciarCarrera(client, chatId, userIdAceptante, reto, monedas, dbData) {
   const chat = dbData.chats[chatId]
   const users = chat.users
@@ -164,9 +142,8 @@ async function iniciarCarrera(client, chatId, userIdAceptante, reto, monedas, db
   const apuesta = reto.apuestaRetador
   const premioTotal = apuesta * 2
 
-  // Obtener nombres (solo dígitos si no hay nombre)
-  const nombreRetador = dbData.users?.[retadorId]?.name || retadorId.split('@')[0].replace(/\D/g, '')
-  const nombreOponente = dbData.users?.[oponenteId]?.name || oponenteId.split('@')[0].replace(/\D/g, '')
+  const nombreRetador = dbData.users?.[retadorId]?.name || retadorId.split('@')[0]
+  const nombreOponente = dbData.users?.[oponenteId]?.name || oponenteId.split('@')[0]
 
   const longitudMeta = 15
   let terminada = false
@@ -193,16 +170,14 @@ async function iniciarCarrera(client, chatId, userIdAceptante, reto, monedas, db
   }
 
   function construirMensajeCarrera() {
-    const pistaRetador = generarPista(carrera.jugadores[0])
-    const pistaOponente = generarPista(carrera.jugadores[1])
     return `╭┈ࠢ͜┅ࠦ͜͜╾݊͜─ׄ͜─֬͜─֟͜─֫͜─ׄ͜─݊͜┅ࠡ͜͜┈࠭͜
 │        𐔌 CARRERA 𐦯
 │
 │ 🐎 ${carrera.jugadores[0].nombre}
-│ ${pistaRetador}
+│ ${generarPista(carrera.jugadores[0])}
 │
 │ 🐎 ${carrera.jugadores[1].nombre}
-│ ${pistaOponente}
+│ ${generarPista(carrera.jugadores[1])}
 │
 │ El primero en llegar gana *${premioTotal} ${monedas}*
 ╰┈ࠢ͜─ׄ͜─ׄ͜─ׄ͜─ׄ͜─ׄ͜─ׄ͜─ׄ͜─ׄ͜┈ࠢ͜╯`
@@ -280,8 +255,7 @@ async function iniciarCarrera(client, chatId, userIdAceptante, reto, monedas, db
 
       delete chat.carreraActiva
     } else {
-      const nuevoTexto = construirMensajeCarrera()
-      client.sendMessage(chatId, { text: nuevoTexto, edit: carrera.mensajeId })
+      client.sendMessage(chatId, { text: construirMensajeCarrera(), edit: carrera.mensajeId })
     }
   }
 
