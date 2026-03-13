@@ -1,5 +1,6 @@
-// Almacén global de timeouts
+// Almacén global de timeouts e intervalos
 global.carreraTimeouts = global.carreraTimeouts || {}
+global.carreraIntervalos = global.carreraIntervalos || {}
 import { resolveLidToRealJid } from '../../lib/utils.js'
 
 export default {
@@ -71,6 +72,7 @@ export default {
       if (!retador || !oponente) return m.reply('ꕥ No se pudo identificar a los participantes.')
       if (retador === oponente) return m.reply('ꕥ No puedes jugar contra ti mismo.')
 
+      // Extraer apuesta
       let apuesta = parseInt(args.find(a => !isNaN(a.replace(/[,.]/g, '')) && parseInt(a.replace(/[,.]/g, '')) >= 100)?.replace(/[,.]/g, ''))
       if (!apuesta) return m.reply(`ꕥ Apuesta mínima: 100 ${monedas}.`)
 
@@ -100,13 +102,26 @@ export default {
       const nRetador = obtenerNombre(retador)
       const nOponente = obtenerNombre(oponente)
 
-      const mensaje = `「✿」 *${nRetador}*, ¿confirmas retar a *${nOponente}*?\n\n❏ Apuesta: *${apuesta} ${monedas}* cada uno\n\n✐ Para aceptar escribe *${usedPrefix}aceptarcarrera*\n❏ Expira en: 60 segundos`
+      // Mensaje con la decoración solicitada
+      const mensaje = `╭┈ࠢ͜┅ࠦ͜͜
+│ 𐔌 RETO DE CARRERA
+│
+│ 🐎 ${nRetador} reta a ${nOponente}
+│
+│ Apuesta: ${apuesta} ${monedas}
+│
+│ Para aceptar:
+│ ${usedPrefix}aceptarcarrera
+│
+│ Expira en 60s
+╰────────────`
+
       await client.sendMessage(m.chat, { text: mensaje, mentions: [retador, oponente] }, { quoted: m })
     }
 
     // =================== COMANDO #aceptarcarrera ===================
     else if (command === 'aceptarcarrera') {
-      if (!chat.retoPendiente) return m.reply('ꕥ No hay retos pendientes.')
+      if (!chat.retoPendiente) return m.reply('ꕥ No hay ningún reto pendiente.')
 
       const quienAcepta = await obtenerJidReal(m.sender, m.text, m.chat)
       const reto = chat.retoPendiente
@@ -114,7 +129,7 @@ export default {
       // Verificación: solo el oponente puede aceptar
       if (quienAcepta !== reto.oponente) {
         const nombreOponente = obtenerNombre(reto.oponente)
-        return m.reply(`ꕥ Solo *${nombreOponente}* puede aceptar este reto.`)
+        return m.reply(`ꕥ Solo ${nombreOponente} puede aceptar.`)
       }
 
       if (reto.expiracion < Date.now()) {
@@ -130,15 +145,17 @@ export default {
       if (global.carreraTimeouts[m.chat]) clearTimeout(global.carreraTimeouts[m.chat])
       delete chat.retoPendiente
 
-      await iniciarCarrera(client, m.chat, quienAcepta, reto, monedas, global.db.data)
+      await iniciarCarrera(client, m.chat, reto, monedas, global.db.data)
     }
   }
 }
 
-async function iniciarCarrera(client, chatId, oponenteId, reto, monedas, dbData) {
+async function iniciarCarrera(client, chatId, reto, monedas, dbData) {
   const chat = dbData.chats[chatId]
   const retadorId = reto.retador
-  const premio = reto.apuesta * 2
+  const oponenteId = reto.oponente
+  const apuesta = reto.apuesta
+  const premio = apuesta * 2
 
   const obtenerNombre = (jid) => {
     if (!jid) return 'Desconocido'
@@ -154,55 +171,98 @@ async function iniciarCarrera(client, chatId, oponenteId, reto, monedas, dbData)
   const nRetador = obtenerNombre(retadorId)
   const nOponente = obtenerNombre(oponenteId)
 
-  const carrera = {
-    jugadores: [
-      { id: retadorId, nombre: nRetador, pos: 0 },
-      { id: oponenteId, nombre: nOponente, pos: 0 }
-    ],
-    meta: 15,
-    msgId: null
-  }
-  chat.carreraActiva = true
+  const meta = 15
+  let jugadores = [
+    { id: retadorId, nombre: nRetador, pos: 0 },
+    { id: oponenteId, nombre: nOponente, pos: 0 }
+  ]
 
   const buildPista = () => {
-    return carrera.jugadores.map(j => {
-      const p = j.pos >= carrera.meta ? '-'.repeat(carrera.meta) + '🐎🏁' : '-'.repeat(j.pos) + '🐎' + '-'.repeat(carrera.meta - j.pos - 1) + '🏁'
-      return `❏ ${j.nombre}\n  ${p}`
+    return jugadores.map(j => {
+      if (j.pos >= meta) {
+        return `🐎 ${j.nombre}\n${'-'.repeat(meta)}🐎🏁`
+      }
+      return `🐎 ${j.nombre}\n${'-'.repeat(j.pos)}🐎${'-'.repeat(meta - j.pos - 1)}🏁`
     }).join('\n\n')
   }
 
-  const { key } = await client.sendMessage(chatId, { text: `「✿」 *CARRERA INICIADA*\n\n${buildPista()}\n\n❏ Premio: *${premio} ${monedas}*` })
-  carrera.msgId = key.id
+  // Mensaje inicial con la decoración
+  const textoInicial = `╭┈ࠢ͜┅ࠦ͜͜
+│ 𐔌 CARRERA INICIADA
+│
+${buildPista()}
+│
+│ Premio: ${premio} ${monedas}
+╰────────────`
+
+  const { key } = await client.sendMessage(chatId, { text: textoInicial })
+  chat.carreraActiva = true
 
   const intervalo = setInterval(async () => {
-    // Movimiento aleatorio para cada jugador (1-3 pasos)
-    carrera.jugadores.forEach(j => j.pos += Math.floor(Math.random() * 3) + 1)
-    
-    // Verificar si ambos llegaron o pasaron la meta en el mismo turno
-    const jugadoresMeta = carrera.jugadores.filter(j => j.pos >= carrera.meta)
-    
-    if (jugadoresMeta.length >= 2) {
-      // Empate: ambos llegaron en el mismo turno
+    // Avance aleatorio para cada jugador
+    jugadores.forEach(j => {
+      if (j.pos < meta) {
+        j.pos += Math.floor(Math.random() * 3) + 1
+      }
+    })
+
+    // Verificar si alguien llegó o pasó la meta
+    const jugadoresEnMeta = jugadores.filter(j => j.pos >= meta)
+
+    if (jugadoresEnMeta.length === 2) {
+      // Empate
       clearInterval(intervalo)
-      // Devolver apuestas a ambos
-      dbData.chats[chatId].users[retadorId].coins += reto.apuesta
-      dbData.chats[chatId].users[oponenteId].coins += reto.apuesta
-      const empateMsg = `「✿」 *CARRERA EMPATADA*\n\n${buildPista()}\n\n❏ Resultado: ¡Empate! Ambos llegaron a la meta.\n❏ Se devuelven las apuestas: *${reto.apuesta} ${monedas}* cada uno.`
-      await client.sendMessage(chatId, { text: empateMsg, edit: key })
-      delete chat.carreraActiva
-    } 
-    else if (jugadoresMeta.length === 1) {
-      // Hay un ganador único
-      clearInterval(intervalo)
-      const ganador = jugadoresMeta[0]
-      dbData.chats[chatId].users[ganador.id].coins += premio
-      const finalMsg = `「✿」 *CARRERA FINALIZADA*\n\n${buildPista()}\n\n❏ Ganador: @${ganador.id.split('@')[0]}\n❏ Premio: +${premio} ${monedas}`
-      await client.sendMessage(chatId, { text: finalMsg, edit: key, mentions: [ganador.id] })
-      delete chat.carreraActiva
-    } 
-    else {
-      // Nadie ha llegado, actualizar pista
-      await client.sendMessage(chatId, { text: `「✿」 *CARRERA*\n\n${buildPista()}\n\n❏ Premio: *${premio} ${monedas}*`, edit: key })
+      chat.carreraActiva = false
+
+      // Devolver apuestas
+      chat.users[retadorId].coins += apuesta
+      chat.users[oponenteId].coins += apuesta
+
+      const textoEmpate = `╭┈ࠢ͜┅ࠦ͜͜
+│ 𐔌 CARRERA EMPATADA
+│
+${buildPista()}
+│
+│ ⚖️ Nadie gana, se devuelven las apuestas.
+╰────────────`
+
+      await client.sendMessage(chatId, { text: textoEmpate, edit: key })
+      return
     }
-  }, 2500)
+
+    if (jugadoresEnMeta.length === 1) {
+      // Hay un ganador
+      clearInterval(intervalo)
+      chat.carreraActiva = false
+
+      const ganador = jugadoresEnMeta[0]
+      chat.users[ganador.id].coins += premio
+
+      const textoGanador = `╭┈ࠢ͜┅ࠦ͜͜
+│ 𐔌 CARRERA FINALIZADA
+│
+${buildPista()}
+│
+│ 🏆 Ganador: @${ganador.id.split('@')[0]}
+│ Premio: +${premio} ${monedas}
+╰────────────`
+
+      await client.sendMessage(chatId, { text: textoGanador, edit: key, mentions: [ganador.id] })
+      return
+    }
+
+    // Actualizar pista
+    const textoActualizado = `╭┈ࠢ͜┅ࠦ͜͜
+│ 𐔌 CARRERA
+│
+${buildPista()}
+│
+│ Premio: ${premio} ${monedas}
+╰────────────`
+
+    await client.sendMessage(chatId, { text: textoActualizado, edit: key })
+  }, 2000)
+
+  // Guardar intervalo para limpieza si es necesario
+  global.carreraIntervalos[chatId] = intervalo
 }
