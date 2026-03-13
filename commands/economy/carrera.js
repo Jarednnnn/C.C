@@ -2,6 +2,9 @@
 global.carreraTimeouts = global.carreraTimeouts || {}
 import { resolveLidToRealJid } from '../../lib/utils.js'
 
+// Extrae solo los dígitos del JID/LID para comparación robusta
+const numId = (id = '') => id.replace(/[^0-9]/g, '')
+
 export default {
   command: ['carrera', 'aceptarcarrera'],
   category: 'economy',
@@ -16,19 +19,21 @@ export default {
       return m.reply(`ꕥ Los comandos de *Economía* están desactivados.\n» *${usedPrefix}economy on*`)
     }
 
-    // Función auxiliar para resolver JID real desde metadata del grupo
+    // Devuelve el JID real (@s.whatsapp.net) buscando en metadata del grupo
+    // Si no lo encuentra, devuelve el id original
     const resolveJidFromGroup = async (targetId) => {
       try {
         const metadata = await client.groupMetadata(m.chat)
+        const tNum = numId(targetId)
         const participant = metadata.participants.find(p =>
           p.id === targetId ||
           p.lid === targetId ||
-          p.id.split('@')[0] === targetId.split('@')[0] ||
-          p.lid?.split('@')[0] === targetId.split('@')[0]
+          numId(p.id) === tNum ||
+          numId(p.lid || '') === tNum
         )
         if (participant?.id?.endsWith('@s.whatsapp.net')) return participant.id
       } catch (e) {}
-      return null
+      return targetId
     }
 
     // =================== COMANDO #carrera ===================
@@ -41,13 +46,14 @@ export default {
 
       // Resolver retador
       let retador = await resolveJidFromGroup(m.sender)
-      if (!retador) retador = await resolveLidToRealJid(m.sender, client, m.chat)
-      if (!retador) retador = m.sender
 
-      // Resolver oponente — siempre intentar metadata primero
+      // Resolver oponente
       let oponente = await resolveJidFromGroup(rawOpponent)
-      if (!oponente) oponente = await resolveLidToRealJid(rawOpponent, client, m.chat)
-      if (!oponente || !oponente.endsWith('@s.whatsapp.net')) oponente = rawOpponent
+      // Si sigue sin ser JID real, intentar resolveLidToRealJid como último recurso
+      if (!oponente.endsWith('@s.whatsapp.net')) {
+        const resolved = await resolveLidToRealJid(rawOpponent, client, m.chat)
+        if (resolved?.endsWith('@s.whatsapp.net')) oponente = resolved
+      }
 
       if (retador === oponente) return m.reply('ꕥ No puedes jugar contra ti mismo.')
 
@@ -57,7 +63,7 @@ export default {
       if (!chat.users[retador]) chat.users[retador] = { coins: 0 }
       if (chat.users[retador].coins < apuesta) return m.reply(`ꕥ No tienes suficientes ${monedas}.`)
 
-      // Limpiar retos viejos
+      // Limpiar reto viejo si existe
       if (chat.retoPendiente) {
         if (global.carreraTimeouts[m.chat]) clearTimeout(global.carreraTimeouts[m.chat])
         if (chat.retoPendiente.expiracion < Date.now()) {
@@ -68,9 +74,10 @@ export default {
 
       chat.users[retador].coins -= apuesta
       chat.retoPendiente = {
-        retador,
-        oponente,
-        rawOponente: rawOpponent,
+        retador,                        // JID real del retador
+        oponente,                       // JID real del oponente (o lo mejor que pudimos resolver)
+        oponenteNum: numId(oponente),   // solo dígitos, para comparación de fallback
+        rawOponente: rawOpponent,       // valor original sin resolver
         apuesta,
         expiracion: Date.now() + 60000
       }
@@ -95,50 +102,42 @@ export default {
       if (!chat.retoPendiente) return m.reply('ꕥ No hay retos pendientes.')
 
       // Resolver quién acepta
-      let quienAcepta = await resolveJidFromGroup(m.sender)
-      if (!quienAcepta) quienAcepta = await resolveLidToRealJid(m.sender, client, m.chat)
-      if (!quienAcepta) quienAcepta = m.sender
-
+      const quienAcepta = await resolveJidFromGroup(m.sender)
       const reto = chat.retoPendiente
 
-      // Verificar si quienAcepta es el oponente correcto
+      // Comparación robusta: directo, por número, por rawOponente, o por metadata
       const esOponenteValido = async () => {
-        // Comparación directa
+        // 1. Comparación directa de JIDs
         if (reto.oponente === quienAcepta) return true
-        if (reto.rawOponente === quienAcepta) return true
 
-        // Buscar en metadata del grupo cruzando LID y JID
+        // 2. Comparación por número limpio (cubre LID vs JID)
+        const numAcepta = numId(quienAcepta)
+        if (reto.oponenteNum && reto.oponenteNum === numAcepta) return true
+        if (numId(reto.rawOponente) === numAcepta) return true
+
+        // 3. Buscar en metadata cruzando todos los campos posibles
         try {
           const metadata = await client.groupMetadata(m.chat)
 
-          // Buscar quienAcepta en participantes
-          const participanteAcepta = metadata.participants.find(p =>
-            p.id === quienAcepta || p.lid === quienAcepta
+          // Participante que acepta
+          const pAcepta = metadata.participants.find(p =>
+            p.id === quienAcepta ||
+            p.lid === quienAcepta ||
+            numId(p.id) === numAcepta ||
+            numId(p.lid || '') === numAcepta
           )
 
-          if (participanteAcepta) {
+          if (pAcepta) {
+            const oponenteNum = reto.oponenteNum || numId(reto.oponente)
             if (
-              participanteAcepta.id === reto.oponente ||
-              participanteAcepta.lid === reto.oponente ||
-              participanteAcepta.id === reto.rawOponente ||
-              participanteAcepta.lid === reto.rawOponente
-            ) return true
-          }
-
-          // Buscar el oponente guardado (sea LID o JID)
-          const participanteOponente = metadata.participants.find(p =>
-            p.id === reto.oponente ||
-            p.lid === reto.oponente ||
-            p.id === reto.rawOponente ||
-            p.lid === reto.rawOponente ||
-            p.id.split('@')[0] === reto.oponente.split('@')[0] ||
-            p.lid?.split('@')[0] === reto.oponente.split('@')[0]
-          )
-
-          if (participanteOponente) {
-            if (
-              participanteOponente.id === quienAcepta ||
-              participanteOponente.lid === quienAcepta
+              pAcepta.id === reto.oponente ||
+              pAcepta.lid === reto.oponente ||
+              numId(pAcepta.id) === oponenteNum ||
+              numId(pAcepta.lid || '') === oponenteNum ||
+              pAcepta.id === reto.rawOponente ||
+              pAcepta.lid === reto.rawOponente ||
+              numId(pAcepta.id) === numId(reto.rawOponente) ||
+              numId(pAcepta.lid || '') === numId(reto.rawOponente)
             ) return true
           }
         } catch (e) {}
@@ -147,7 +146,6 @@ export default {
       }
 
       if (!(await esOponenteValido())) {
-        // Intentar mostrar nombre legible del oponente
         const nombreOponente =
           global.db.data.users[reto.oponente]?.name ||
           reto.oponente.split('@')[0] ||
