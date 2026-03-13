@@ -1,6 +1,5 @@
 // Almacén global de timeouts
 global.carreraTimeouts = global.carreraTimeouts || {}
-import { resolveLidToRealJid } from '../../lib/utils.js'
 
 export default {
   command: ['carrera', 'aceptarcarrera'],
@@ -16,28 +15,48 @@ export default {
       return m.reply(`ꕥ Los comandos de *Economía* están desactivados.\n» *${usedPrefix}economy on*`)
     }
 
+    // --- FUNCIÓN DE RESOLUCIÓN DE JID REAL (basada en participantes del grupo) ---
+    const obtenerJidReal = async (id) => {
+      if (!id) return null
+      // Extraemos la parte numérica (sin @ ni :)
+      const simpleId = id.split('@')[0].split(':')[0]
+      try {
+        const metadata = await client.groupMetadata(m.chat)
+        const participant = metadata.participants.find(p => 
+          p.id.includes(simpleId) || (p.lid && p.lid.includes(simpleId))
+        )
+        // Si encontramos al participante, devolvemos su JID completo
+        if (participant) return participant.id.split('@')[0] + '@s.whatsapp.net'
+        // Si no, asumimos que el simpleId es el número y construimos el JID
+        return simpleId + '@s.whatsapp.net'
+      } catch {
+        return simpleId + '@s.whatsapp.net'
+      }
+    }
+
     // =================== COMANDO #carrera ===================
     if (command === 'carrera') {
       if (chat.carreraActiva) return m.reply('ꕥ Ya hay una carrera en curso.')
 
-      // Obtener mencionado o citado (igual que en giveallharem)
+      // Obtener mencionado o citado (estilo giveallharem)
       const mentionedJid = m.mentionedJid
       const rawOpponent = mentionedJid[0] || (m.quoted ? m.quoted.sender : null)
       if (!rawOpponent) return m.reply(`ꕥ Menciona a alguien.\n> Ejemplo: *${usedPrefix}carrera @usuario 200*`)
 
-      // Normalizamos ambos IDs a su versión real (número de teléfono)
-      const retador = await resolveLidToRealJid(m.sender, client, m.chat)
-      const oponente = await resolveLidToRealJid(rawOpponent, client, m.chat)
+      // Resolvemos ambos a JID real
+      const retador = await obtenerJidReal(m.sender)
+      const oponente = await obtenerJidReal(rawOpponent)
 
       if (retador === oponente) return m.reply('ꕥ No puedes jugar contra ti mismo.')
 
+      // Extraer apuesta
       let apuesta = parseInt(args.find(a => !isNaN(a.replace(/[,.]/g, '')) && parseInt(a.replace(/[,.]/g, '')) >= 100)?.replace(/[,.]/g, ''))
       if (!apuesta) return m.reply(`ꕥ Apuesta mínima: 100 ${monedas}.`)
 
       if (!chat.users[retador]) chat.users[retador] = { coins: 0 }
       if (chat.users[retador].coins < apuesta) return m.reply(`ꕥ No tienes suficientes ${monedas}.`)
 
-      // Limpieza de retos viejos
+      // Limpiar retos viejos
       if (chat.retoPendiente) {
         if (global.carreraTimeouts[m.chat]) clearTimeout(global.carreraTimeouts[m.chat])
         if (chat.retoPendiente.expiracion < Date.now()) {
@@ -46,9 +65,11 @@ export default {
         } else return m.reply('ꕥ Hay un reto pendiente. Espera un momento.')
       }
 
+      // Descontar monedas al retador y guardar reto
       chat.users[retador].coins -= apuesta
       chat.retoPendiente = { retador, oponente, apuesta, expiracion: Date.now() + 60000 }
 
+      // Timeout de expiración
       global.carreraTimeouts[m.chat] = setTimeout(() => {
         if (chat.retoPendiente && chat.retoPendiente.retador === retador) {
           if (chat.users[retador]) chat.users[retador].coins += apuesta
@@ -57,6 +78,7 @@ export default {
         }
       }, 60000)
 
+      // Obtener nombres para mostrar
       const nRetador = global.db.data.users[retador]?.name || retador.split('@')[0]
       const nOponente = global.db.data.users[oponente]?.name || oponente.split('@')[0]
 
@@ -69,12 +91,13 @@ export default {
     else if (command === 'aceptarcarrera') {
       if (!chat.retoPendiente) return m.reply('ꕥ No hay retos pendientes.')
 
-      // Normalizamos el ID del que intenta aceptar
-      const quienAcepta = await resolveLidToRealJid(m.sender, client, m.chat)
+      // Resolvemos el ID del que acepta
+      const quienAcepta = await obtenerJidReal(m.sender)
       const reto = chat.retoPendiente
 
-      // Comparación de seguridad
+      // Comparación usando los números (sin @) para mayor seguridad
       if (quienAcepta.split('@')[0] !== reto.oponente.split('@')[0]) {
+        // Mostramos el nombre del oponente si está disponible
         const nombreOponente = global.db.data.users[reto.oponente]?.name || reto.oponente.split('@')[0]
         return m.reply(`ꕥ Solo *${nombreOponente}* puede aceptar este reto.`)
       }
