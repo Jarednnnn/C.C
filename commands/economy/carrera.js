@@ -17,10 +17,15 @@ export default {
         return m.reply('ꕥ Ya hay una carrera en curso en este grupo. Espera a que termine.')
       }
 
-      // Obtener mención (usando m.mentionedJid como en kick)
-      let opponentId = m.mentionedJid[0] ? m.mentionedJid[0] : (m.quoted ? m.quoted.sender : null)
+      // Obtener mención (usando m.mentionedJid, que es más confiable)
+      let opponentId = m.mentionedJid[0]
       if (!opponentId) {
-        return m.reply(`ꕥ Debes mencionar al usuario con quien quieres competir.\n> Ejemplo: *${usedPrefix}carrera @usuario 200*`)
+        // Si no hay mención, intentar con quoted
+        if (m.quoted && m.quoted.sender) {
+          opponentId = m.quoted.sender
+        } else {
+          return m.reply(`ꕥ Debes mencionar al usuario con quien quieres competir.\n> Ejemplo: *${usedPrefix}carrera @usuario 200*`)
+        }
       }
       if (opponentId === m.sender) {
         return m.reply('ꕥ No puedes retarte a ti mismo. Menciona a otro usuario.')
@@ -43,11 +48,12 @@ export default {
       // Asegurar que el oponente existe
       if (!chat.users[opponentId]) chat.users[opponentId] = { coins: 0 }
 
+      // Verificar fondos del retador
       if (user.coins < apuesta) {
         return m.reply(`ꕥ No tienes suficientes ${monedas}. Necesitas *${apuesta} ${monedas}*.`)
       }
 
-      // Limpiar retos expirados
+      // Manejo de reto pendiente previo
       if (chat.retoPendiente) {
         if (chat.retoPendiente.expiracion < Date.now()) {
           const retadorAnterior = chat.retoPendiente.retador
@@ -60,8 +66,10 @@ export default {
         }
       }
 
+      // Restar apuesta al retador
       user.coins -= apuesta
 
+      // Crear reto pendiente
       const reto = {
         retador: m.sender,
         oponente: opponentId,
@@ -81,7 +89,7 @@ export default {
       }, 60000)
       chat.retoPendiente.timeout = timeout
 
-      // Nombres
+      // Obtener nombres (usando global.db.data.users si existe, sino el número)
       const retadorName = global.db.data.users?.[m.sender]?.name || m.sender.split('@')[0]
       const oponenteName = global.db.data.users?.[opponentId]?.name || opponentId.split('@')[0]
 
@@ -108,7 +116,7 @@ export default {
 
       const reto = chat.retoPendiente
 
-      // Comparar directamente los JIDs completos (sin extraer números)
+      // Comparar JIDs completos (sin normalizar)
       if (m.sender !== reto.oponente) {
         const oponenteName = global.db.data.users?.[reto.oponente]?.name || reto.oponente.split('@')[0]
         return m.reply(`ꕥ Solo *${oponenteName}* puede aceptar este reto.`)
@@ -170,14 +178,16 @@ async function iniciarCarrera(client, chatId, userIdAceptante, reto, monedas, db
   }
 
   function construirMensajeCarrera() {
+    const pistaRetador = generarPista(carrera.jugadores[0])
+    const pistaOponente = generarPista(carrera.jugadores[1])
     return `╭┈ࠢ͜┅ࠦ͜͜╾݊͜─ׄ͜─֬͜─֟͜─֫͜─ׄ͜─݊͜┅ࠡ͜͜┈࠭͜
 │        𐔌 CARRERA 𐦯
 │
 │ 🐎 ${carrera.jugadores[0].nombre}
-│ ${generarPista(carrera.jugadores[0])}
+│ ${pistaRetador}
 │
 │ 🐎 ${carrera.jugadores[1].nombre}
-│ ${generarPista(carrera.jugadores[1])}
+│ ${pistaOponente}
 │
 │ El primero en llegar gana *${premioTotal} ${monedas}*
 ╰┈ࠢ͜─ׄ͜─ׄ͜─ׄ͜─ׄ͜─ׄ͜─ׄ͜─ׄ͜─ׄ͜┈ࠢ͜╯`
@@ -205,8 +215,6 @@ async function iniciarCarrera(client, chatId, userIdAceptante, reto, monedas, db
           ganadorId = jugadoresLlegados[0].id
         } else if (jugadoresLlegados[1].posicion > jugadoresLlegados[0].posicion) {
           ganadorId = jugadoresLlegados[1].id
-        } else {
-          ganadorId = null
         }
       }
 
@@ -255,7 +263,8 @@ async function iniciarCarrera(client, chatId, userIdAceptante, reto, monedas, db
 
       delete chat.carreraActiva
     } else {
-      client.sendMessage(chatId, { text: construirMensajeCarrera(), edit: carrera.mensajeId })
+      const nuevoTexto = construirMensajeCarrera()
+      client.sendMessage(chatId, { text: nuevoTexto, edit: carrera.mensajeId })
     }
   }
 
