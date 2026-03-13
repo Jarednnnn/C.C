@@ -2,72 +2,6 @@
 global.carreraTimeouts = global.carreraTimeouts || {}
 import { resolveLidToRealJid } from '../../lib/utils.js'
 
-/**
- * Normaliza cualquier ID a su JID real (@s.whatsapp.net).
- * Estrategia en orden de confiabilidad:
- *  1. Si ya es PN (@s.whatsapp.net), lo devuelve tal cual.
- *  2. Usa sock.signalRepository.lidMapping.getPNForLID (Baileys v7).
- *  3. Busca en groupMetadata cruzando id, lid y phoneNumber.
- *  4. Usa resolveLidToRealJid del bot como último recurso.
- *  5. Devuelve el original si nada funciona.
- */
-async function toPN(id, client, chatId) {
-  if (!id) return id
-
-  // 1. Ya es PN
-  if (id.endsWith('@s.whatsapp.net')) return id
-
-  // 2. Baileys v7: lidMapping interno
-  try {
-    const pn = await client.signalRepository?.lidMapping?.getPNForLID?.(id)
-    if (pn && pn.endsWith('@s.whatsapp.net')) return pn
-  } catch (_) {}
-
-  // 3. groupMetadata — cruza id, lid y phoneNumber
-  try {
-    const meta = await client.groupMetadata(chatId)
-    const raw = id.replace(/@.*$/, '') // solo dígitos/número
-    const found = meta.participants.find(p => {
-      const pId   = (p.id  || '').replace(/@.*$/, '')
-      const pLid  = (p.lid || '').replace(/@.*$/, '')
-      const pPn   = (p.phoneNumber || '').replace(/[^0-9]/g, '')
-      return (
-        p.id  === id || p.lid === id ||
-        pId   === raw || pLid === raw || pPn === raw
-      )
-    })
-    if (found) {
-      // Preferir phoneNumber si existe, luego id si es PN, luego lid
-      if (found.phoneNumber) {
-        const clean = found.phoneNumber.replace(/[^0-9]/g, '')
-        return `${clean}@s.whatsapp.net`
-      }
-      if (found.id?.endsWith('@s.whatsapp.net')) return found.id
-    }
-  } catch (_) {}
-
-  // 4. resolveLidToRealJid del bot
-  try {
-    const resolved = await resolveLidToRealJid(id, client, chatId)
-    if (resolved?.endsWith('@s.whatsapp.net')) return resolved
-  } catch (_) {}
-
-  // 5. No se pudo resolver — devolver original
-  return id
-}
-
-/**
- * Devuelve true si dos IDs pertenecen al mismo usuario,
- * comparando número limpio + JID completo + LID completo.
- */
-function sameUser(a = '', b = '') {
-  if (!a || !b) return false
-  if (a === b) return true
-  const clean = s => s.replace(/[^0-9]/g, '')
-  const na = clean(a), nb = clean(b)
-  return na.length >= 8 && na === nb
-}
-
 export default {
   command: ['carrera', 'aceptarcarrera'],
   category: 'economy',
@@ -82,36 +16,81 @@ export default {
       return m.reply(`ꕥ Los comandos de *Economía* están desactivados.\n» *${usedPrefix}economy on*`)
     }
 
+    // --- FUNCIÓN SEGURA PARA OBTENER JID REAL ---
+    const obtenerJidRealSeguro = async (id, grupoId) => {
+      if (!id) return null
+      // Si ya es un JID válido, lo devolvemos
+      if (id.endsWith('@s.whatsapp.net')) return id
+
+      // Intentar resolver con la función de utils
+      let jid = await resolveLidToRealJid(id, client, grupoId)
+      // Si la resolución devolvió algo diferente al original y es JID, bien
+      if (jid !== id && jid.endsWith('@s.whatsapp.net')) return jid
+
+      // Si no, forzar búsqueda en metadata del grupo
+      try {
+        const metadata = await client.groupMetadata(grupoId)
+        const participante = metadata.participants.find(p => {
+          // Buscar por LID
+          if (p.lid && p.lid === id) return true
+          // Buscar por ID (que puede ser JID o LID)
+          if (p.id === id) return true
+          // Buscar por número de teléfono (sin @)
+          const phone = id.split('@')[0].replace(/\D/g, '')
+          if (p.phoneNumber && p.phoneNumber.includes(phone)) return true
+          return false
+        })
+        if (participante) {
+          // El participante puede tener id en formato JID o LID; aseguramos JID
+          if (participante.id.endsWith('@s.whatsapp.net')) return participante.id
+          // Si no, construir JID con el número de teléfono si existe
+          if (participante.phoneNumber) {
+            return participante.phoneNumber.replace(/\D/g, '') + '@s.whatsapp.net'
+          }
+        }
+      } catch (e) {
+        console.error('Error al obtener metadata:', e)
+      }
+      // Último recurso: devolver el original (aunque probablemente cause error)
+      return id
+    }
+
+    // --- FUNCIÓN PARA OBTENER NOMBRE LEGIBLE ---
+    const obtenerNombre = (jid) => {
+      if (!jid) return 'Desconocido'
+      // Buscar en base de datos global
+      const nombreDB = global.db.data.users[jid]?.name
+      if (nombreDB) return nombreDB
+      // Si es un JID, formatear el número
+      const numero = jid.split('@')[0]
+      // Formato internacional legible (opcional)
+      return numero.replace(/(\d{2})(\d{3})(\d{3})(\d{4})/, '+$1 $2 $3 $4')
+    }
+
     // =================== COMANDO #carrera ===================
     if (command === 'carrera') {
       if (chat.carreraActiva) return m.reply('ꕥ Ya hay una carrera en curso.')
 
+      // Obtener mencionado o citado
       const mentionedJid = m.mentionedJid
-      const rawOpponent = mentionedJid[0] || (m.quoted ? m.quoted.sender : null)
+      const rawOpponent = mentionedJid?.[0] || m.quoted?.sender
       if (!rawOpponent) return m.reply(`ꕥ Menciona a alguien.\n> Ejemplo: *${usedPrefix}carrera @usuario 200*`)
 
-      // Resolver IDs a PN real
-      // Para el retador también usamos participantAlt si está disponible (Baileys v7)
-      const senderRaw = m.sender || m.key?.participant || m.key?.remoteJid
-      const senderAlt = m.key?.participantAlt  // PN si sender es LID, o viceversa
-      let retador = senderAlt?.endsWith('@s.whatsapp.net') ? senderAlt
-                  : await toPN(senderRaw, client, m.chat)
+      // Resolver a JID real usando la función segura
+      const retador = await obtenerJidRealSeguro(m.sender, m.chat)
+      const oponente = await obtenerJidRealSeguro(rawOpponent, m.chat)
 
-      // Para el oponente: también revisar si viene con Alt en mentionedJid
-      // En Baileys v7 mentionedJid puede traer LIDs; el mensaje quoted puede tener participantAlt
-      const oponenteAlt = m.quoted?.key?.participantAlt
-      let oponente = oponenteAlt?.endsWith('@s.whatsapp.net') ? oponenteAlt
-                   : await toPN(rawOpponent, client, m.chat)
+      if (!oponente) return m.reply('ꕥ No se pudo identificar al oponente.')
+      if (retador === oponente) return m.reply('ꕥ No puedes jugar contra ti mismo.')
 
-      if (sameUser(retador, oponente)) return m.reply('ꕥ No puedes jugar contra ti mismo.')
-
+      // Extraer apuesta
       let apuesta = parseInt(args.find(a => !isNaN(a.replace(/[,.]/g, '')) && parseInt(a.replace(/[,.]/g, '')) >= 100)?.replace(/[,.]/g, ''))
       if (!apuesta) return m.reply(`ꕥ Apuesta mínima: 100 ${monedas}.`)
 
       if (!chat.users[retador]) chat.users[retador] = { coins: 0 }
       if (chat.users[retador].coins < apuesta) return m.reply(`ꕥ No tienes suficientes ${monedas}.`)
 
-      // Limpiar reto viejo si existe
+      // Limpiar retos viejos
       if (chat.retoPendiente) {
         if (global.carreraTimeouts[m.chat]) clearTimeout(global.carreraTimeouts[m.chat])
         if (chat.retoPendiente.expiracion < Date.now()) {
@@ -120,15 +99,11 @@ export default {
         } else return m.reply('ꕥ Hay un reto pendiente. Espera un momento.')
       }
 
+      // Descontar monedas al retador y guardar reto (guardamos los JIDs reales)
       chat.users[retador].coins -= apuesta
-      chat.retoPendiente = {
-        retador,
-        oponente,
-        rawOponente: rawOpponent,
-        apuesta,
-        expiracion: Date.now() + 60000
-      }
+      chat.retoPendiente = { retador, oponente, apuesta, expiracion: Date.now() + 60000 }
 
+      // Timeout de expiración
       global.carreraTimeouts[m.chat] = setTimeout(() => {
         if (chat.retoPendiente && chat.retoPendiente.retador === retador) {
           if (chat.users[retador]) chat.users[retador].coins += apuesta
@@ -137,10 +112,12 @@ export default {
         }
       }, 60000)
 
-      const nRetador = global.db.data.users[retador]?.name || retador.split('@')[0]
-      const nOponente = global.db.data.users[oponente]?.name || oponente.split('@')[0] || rawOpponent.split('@')[0]
+      // Obtener nombres para mostrar
+      const nRetador = obtenerNombre(retador)
+      const nOponente = obtenerNombre(oponente)
 
-      const mensaje = `「✿」 *${nRetador}*, ¿confirmas retar a *${nOponente}*?\n\n❏ Apuesta: *${apuesta} ${monedas}* cada uno\n\n✐ Para aceptar escribe *${usedPrefix}aceptarcarrera*`
+      // Mensaje con decoración
+      const mensaje = `「✿」 *${nRetador}*, ¿confirmas retar a *${nOponente}*?\n\n❏ Apuesta: *${apuesta} ${monedas}* cada uno\n\n✐ Para aceptar escribe *${usedPrefix}aceptarcarrera*\n⏳ Este reto expirará en 60 segundos.`
       await client.sendMessage(m.chat, { text: mensaje, mentions: [retador, oponente] }, { quoted: m })
     }
 
@@ -148,24 +125,13 @@ export default {
     else if (command === 'aceptarcarrera') {
       if (!chat.retoPendiente) return m.reply('ꕥ No hay retos pendientes.')
 
+      // Resolver el ID del que acepta usando la función segura
+      const quienAcepta = await obtenerJidRealSeguro(m.sender, m.chat)
       const reto = chat.retoPendiente
 
-      // Resolver quién acepta — igual que el retador, usar participantAlt primero
-      const senderRaw = m.sender || m.key?.participant || m.key?.remoteJid
-      const senderAlt = m.key?.participantAlt
-      let quienAcepta = senderAlt?.endsWith('@s.whatsapp.net') ? senderAlt
-                      : await toPN(senderRaw, client, m.chat)
-
-      // Validar: ¿quienAcepta es el oponente del reto?
-      const esValido = sameUser(quienAcepta, reto.oponente) ||
-                       sameUser(quienAcepta, reto.rawOponente) ||
-                       sameUser(senderRaw,   reto.oponente) ||
-                       sameUser(senderRaw,   reto.rawOponente)
-
-      if (!esValido) {
-        const nombreOponente =
-          global.db.data.users[reto.oponente]?.name ||
-          reto.oponente.split('@')[0]
+      // Comparar directamente los JIDs reales
+      if (quienAcepta !== reto.oponente) {
+        const nombreOponente = obtenerNombre(reto.oponente)
         return m.reply(`ꕥ Solo *${nombreOponente}* puede aceptar este reto.`)
       }
 
@@ -192,8 +158,17 @@ async function iniciarCarrera(client, chatId, oponenteId, reto, monedas, dbData)
   const retadorId = reto.retador
   const premio = reto.apuesta * 2
 
-  const nRetador = dbData.users[retadorId]?.name || retadorId.split('@')[0]
-  const nOponente = dbData.users[oponenteId]?.name || oponenteId.split('@')[0]
+  // Función para obtener nombre legible (reutilizada)
+  const obtenerNombre = (jid) => {
+    if (!jid) return 'Desconocido'
+    const nombreDB = dbData.users[jid]?.name
+    if (nombreDB) return nombreDB
+    const numero = jid.split('@')[0]
+    return numero.replace(/(\d{2})(\d{3})(\d{3})(\d{4})/, '+$1 $2 $3 $4')
+  }
+
+  const nRetador = obtenerNombre(retadorId)
+  const nOponente = obtenerNombre(oponenteId)
 
   const carrera = {
     jugadores: [
@@ -207,16 +182,12 @@ async function iniciarCarrera(client, chatId, oponenteId, reto, monedas, dbData)
 
   const buildPista = () => {
     return carrera.jugadores.map(j => {
-      const p = j.pos >= carrera.meta
-        ? '-'.repeat(carrera.meta) + '🐎🏁'
-        : '-'.repeat(j.pos) + '🐎' + '-'.repeat(carrera.meta - j.pos - 1) + '🏁'
+      const p = j.pos >= carrera.meta ? '-'.repeat(carrera.meta) + '🐎🏁' : '-'.repeat(j.pos) + '🐎' + '-'.repeat(carrera.meta - j.pos - 1) + '🏁'
       return `❏ ${j.nombre}\n  ${p}`
     }).join('\n\n')
   }
 
-  const { key } = await client.sendMessage(chatId, {
-    text: `「✿」 *CARRERA INICIADA*\n\n${buildPista()}\n\n❏ Premio: *${premio} ${monedas}*`
-  })
+  const { key } = await client.sendMessage(chatId, { text: `「✿」 *CARRERA INICIADA*\n\n${buildPista()}\n\n❏ Premio: *${premio} ${monedas}*` })
   carrera.msgId = key.id
 
   const intervalo = setInterval(async () => {
@@ -230,10 +201,7 @@ async function iniciarCarrera(client, chatId, oponenteId, reto, monedas, dbData)
       await client.sendMessage(chatId, { text: finalMsg, edit: key, mentions: [ganador.id] })
       delete chat.carreraActiva
     } else {
-      await client.sendMessage(chatId, {
-        text: `「✿」 *CARRERA*\n\n${buildPista()}\n\n❏ Premio: *${premio} ${monedas}*`,
-        edit: key
-      })
+      await client.sendMessage(chatId, { text: `「✿」 *CARRERA*\n\n${buildPista()}\n\n❏ Premio: *${premio} ${monedas}*`, edit: key })
     }
   }, 2500)
 }
