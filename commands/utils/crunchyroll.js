@@ -1,4 +1,4 @@
-import { cuentasCrunchyroll } from './cuentas_db.js' // <-- Importa las cuentas
+import { cuentasCrunchyroll } from './cuentas.js' // <-- Importa las cuentas
 
 export default {
   command: ['cuenta', 'crunchyroll'],
