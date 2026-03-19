@@ -2,7 +2,7 @@ import cuentasCrunchyroll from 'commands/utils/cuentas.js';
 
 export default {
   command: ['crunchyroll', 'cuenta'],
-  category: 'gacha',
+  category: 'main',
   run: async (client, m, args, usedPrefix, command) => {
     try {
       await m.react('🕒');
