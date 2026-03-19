@@ -1,4 +1,4 @@
-import cuentas from 'commands/utils/cuentas.js';
+import cuentasCrunchyroll from 'commands/utils/cuentas.js';
 
 export default {
   command: ['crunchyroll', 'cuenta'],
