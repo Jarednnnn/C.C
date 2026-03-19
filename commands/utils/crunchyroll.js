@@ -74,7 +74,7 @@ export default {
       `• *Contraseña:* \`${cuenta.pass}\`\n` +
       `• *Expira:* ${expiryText}\n` +
       `• *Detalles:* ${cuenta.description || 'Sin descripción'}\n\n` +
-      ` *Este mensaje se autodestruirá en 30 segundos. Copia los datos rápido.*`
+      `⚠️ *Este mensaje se autodestruirá en 30 segundos. Copia los datos rápido.*`
 
     try {
       const sentMsg = await m.reply(mensaje)
