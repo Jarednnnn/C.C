@@ -66,19 +66,37 @@ export default {
 
     // Programar el resultado
     setTimeout(async () => {
-      const multiplicador = Math.floor(Math.random() * 16) // 0 a 15
-      let recompensa = 0
-      let mensaje = ''
+      // Multiplicador balanceado con esperanza matemática ~0.95 (ventaja para la casa)
+      const rand = Math.random()
+      let multiplicador
 
-      if (multiplicador >= 5) {
-        recompensa = cantidad * multiplicador
-        mensaje = `ꕥ Movimiento alcista x${multiplicador}. Ganancia total: *¥${recompensa.toLocaleString()} ${monedas}*.`
+      if (rand < 0.55) {
+        // 55% de probabilidad: pérdida o recuperación parcial (0 a 1)
+        multiplicador = Math.random()
       } else {
-        recompensa = 0
-        mensaje = `✎ La operación fue liquidada. Perdiste *¥${cantidad.toLocaleString()} ${monedas}*.`
+        // 45% de probabilidad: ganancia moderada (1 a 2)
+        multiplicador = 1 + Math.random()
       }
 
-      // Sumar ganancia (si la hay)
+      // Redondear a 2 decimales para presentación
+      multiplicador = parseFloat(multiplicador.toFixed(2))
+
+      const recompensa = cantidad * multiplicador
+      const gananciaNeta = recompensa - cantidad
+
+      // Construir mensaje según el resultado
+      let mensaje = ''
+      if (multiplicador < 1) {
+        mensaje = `✎ La inversión tuvo un rendimiento de *x${multiplicador}*.\n` +
+                  `Recuperaste *¥${recompensa.toLocaleString()} ${monedas}* (pérdida de *¥${Math.abs(gananciaNeta).toLocaleString()}*).`
+      } else if (multiplicador === 1) {
+        mensaje = `✎ La inversión se mantuvo estable (x1.00). Recuperas exactamente lo invertido: *¥${recompensa.toLocaleString()} ${monedas}*.`
+      } else {
+        mensaje = `ꕥ ¡Movimiento alcista! Rendimiento de *x${multiplicador}*.\n` +
+                  `Ganancia neta: *¥${gananciaNeta.toLocaleString()} ${monedas}*. Total: *¥${recompensa.toLocaleString()}*.`
+      }
+
+      // Sumar ganancia (puede ser cero o positiva)
       user.coins += recompensa
 
       // Registrar historial
