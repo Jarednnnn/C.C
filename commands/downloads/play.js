@@ -51,7 +51,8 @@ export default {
 
       await client.sendMessage(m.chat, mensaje, { quoted: m })
     } catch (e) {
-      await m.reply(msgglobal)
+      // Se reemplaza 'msgglobal' por un mensaje de error claro y útil
+      await m.reply(`《✧》 Ocurrió un error inesperado al ejecutar el comando. Inténtalo de nuevo o contacta al soporte.\n> Error: ${e.message}`)
     }
   }
 }
