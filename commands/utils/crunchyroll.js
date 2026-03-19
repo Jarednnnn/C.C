@@ -1,7 +1,7 @@
-import { cuentasCrunchyroll } from './cuentasCrunchyroll.js'
+import { cuentasCrunchyroll } from './cuentas_db.js' // <-- Importa las cuentas
 
 export default {
-  command: ['crunchyroll', 'cuenta'],
+  command: ['cuenta', 'crunchyroll'],
   category: 'gacha',
   run: async (client, m, args, usedPrefix, command) => {
     const chat = global.db.data.chats[m.chat]
@@ -9,21 +9,23 @@ export default {
     // Inicializar estructura si no existe
     if (!chat.crunchyroll) {
       chat.crunchyroll = {
-        accounts: [], // Aquí se cargarán las cuentas importadas
+        accounts: [], // Aquí se cargarán las cuentas desde cuentas_db.js
         users: {}     // Registro de reclamos por usuario
       }
     }
-    
+
     // =============================================
-    // CARGAR CUENTAS DESDE EL ARCHIVO EXTERNO (solo la primera vez)
+    // CARGAR CUENTAS DESDE EL ARCHIVO EXTERNO
+    // (solo la primera vez que se ejecuta el comando en el grupo)
     // =============================================
     if (chat.crunchyroll.accounts.length === 0) {
-      // Importamos las cuentas y les agregamos las propiedades de control
+      // Copiar las cuentas y agregarles los campos de control
       chat.crunchyroll.accounts = cuentasCrunchyroll.map(cuenta => ({
         ...cuenta,
         assigned: false,
         assignedTo: null
       }))
+      console.log(`✅ Cuentas de Crunchyroll cargadas en el grupo ${m.chat}`)
     }
 
     const crunchy = chat.crunchyroll
