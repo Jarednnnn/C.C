@@ -1,23 +1,37 @@
+import { cuentasCrunchyroll } from './cuentasCrunchyroll.js'
+
 export default {
   command: ['crunchyroll', 'cuenta'],
-  category: 'utils', // o la categoría que uses, ejemplo 'utilidad'
+  category: 'gacha',
   run: async (client, m, args, usedPrefix, command) => {
     const chat = global.db.data.chats[m.chat]
     
     // Inicializar estructura si no existe
     if (!chat.crunchyroll) {
       chat.crunchyroll = {
-        accounts: [],
-        users: {}
+        accounts: [], // Aquí se cargarán las cuentas importadas
+        users: {}     // Registro de reclamos por usuario
       }
     }
     
+    // =============================================
+    // CARGAR CUENTAS DESDE EL ARCHIVO EXTERNO (solo la primera vez)
+    // =============================================
+    if (chat.crunchyroll.accounts.length === 0) {
+      // Importamos las cuentas y les agregamos las propiedades de control
+      chat.crunchyroll.accounts = cuentasCrunchyroll.map(cuenta => ({
+        ...cuenta,
+        assigned: false,
+        assignedTo: null
+      }))
+    }
+
     const crunchy = chat.crunchyroll
 
     // =============================================
     // VERIFICAR COOLDOWN (24 horas = 86400000 ms)
     // =============================================
-    const cooldown = 86400000
+    const cooldown = 86400000 // 24 horas
     const now = Date.now()
     const userLast = crunchy.users[m.sender]?.lastClaim || 0
     
@@ -60,7 +74,7 @@ export default {
       `• *Contraseña:* \`${cuenta.pass}\`\n` +
       `• *Expira:* ${expiryText}\n` +
       `• *Detalles:* ${cuenta.description || 'Sin descripción'}\n\n` +
-      `ꕥ *Este mensaje se autodestruirá en 30 segundos. Copia los datos rápido.*`
+      ` *Este mensaje se autodestruirá en 30 segundos. Copia los datos rápido.*`
 
     try {
       const sentMsg = await m.reply(mensaje)
