@@ -28,7 +28,7 @@ export default {
     }
 
     const crunchy = chat.crunchyroll
-    const cooldown = 86400000 // 24 horas
+    const cooldown = 300000 // 24 horas
     const now = Date.now()
     const userLast = crunchy.users[m.sender]?.lastClaim || 0
 
